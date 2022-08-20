@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgis/postgis
+    container_name: postgis-dev
+    environment:
+        - POSTGRES_USER=user
+        - POSTGRES_PASSWORD=pass
+        - POSTGRES_DB=db
+    restart: unless-stopped
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"

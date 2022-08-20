@@ -17,7 +17,7 @@ export const App = () => {
           <div>
             <Link className="App-link" to="/">Home</Link>
             &nbsp;|&nbsp;
-            <Link className="App-link" to="/page2">Page2</Link>
+            <Link className="App-link" to="/page2">Page 2</Link>
           </div>
           <Switch>
             <Route exact path="/">

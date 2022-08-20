@@ -1,0 +1,4 @@
+docker run -d --name postgis-dev -e POSTGRES_PASSWORD=pass -e POSTGRES_USERNAME=user -e POSTGRES_DB=db -p 5432:5432 postgis/postgis
+
+Run this line in console once container is deployed:
+psql -U user db -c "CREATE EXTENSION postgis"
