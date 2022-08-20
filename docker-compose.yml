@@ -1,0 +1,27 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: flask-api
+    ports: 
+      - "5000:5000"
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    image: react-app
+    ports:
+      - "3000:80"
+  db:
+    image: postgis/postgis
+    container_name: postgis
+    environment:
+        - POSTGRES_USER=user
+        - POSTGRES_PASSWORD=pass
+        - POSTGRES_DB=db
+    restart: unless-stopped
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
