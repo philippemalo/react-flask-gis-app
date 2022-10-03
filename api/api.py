@@ -1,36 +1,68 @@
+from flask import Flask, request, jsonify
+from sqlalchemy import create_engine
 import time
-from flask import Flask
-from flask_graphql import GraphQLView
+import psycopg2
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
 
-from flask_sqlalchemy.models import db_session
-from flask_sqlalchemy.schema import schema, Shape
 
-app = Flask(__name__, static_folder='../build', static_url_path='/')
-app.debug = True
+from ariadne import load_schema_from_path, make_executable_schema, graphql_sync, snake_case_fallback_resolvers, ObjectType
+from ariadne.constants import PLAYGROUND_HTML
+from queries import resolve_users, resolve_userProjects
 
-app.add_url_rule(
-    '/graphql',
-    view_func=GraphQLView.as_view(
-        'graphql',
-        schema=schema,
-        graphiql=True # for having the GraphiQL interface
-    )
-)
+app = Flask(__name__)
 
-@app.teardown_appcontext
-def shutdown_session(exception=None):
-    db_session.remove()
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://user:pass@localhost:5432/db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-@app.errorhandler(404)
-def not_found(e):
-    return app.send_static_file('index.html')
+engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"], echo=True)
+db_session = scoped_session(sessionmaker(autocommit=False,
+                                         autoflush=False,
+                                         bind=engine))
+Base = declarative_base()
+Base.query = db_session.query_property()
 
+def get_db_connection():
+    conn = psycopg2.connect(host='localhost', port='5432', dbname='db', user='user', password='pass')
+    return conn
 
 @app.route('/')
 def index():
-    return "Hello world from Flask!"
-
+    conn = get_db_connection()
+    if conn.closed == 0:
+        return 'DB connection succesful'
+    else:
+        return 'DB not connected'
 
 @app.route('/api/time')
-def get_current_time():
+def current_time():
     return {'time': time.time()}
+
+@app.route("/graphql", methods=["GET"])
+def graphql_playground():
+    return PLAYGROUND_HTML, 200
+
+
+@app.route("/graphql", methods=["POST"])
+def graphql_server():
+    data = request.get_json()
+
+    success, result = graphql_sync(
+        schema,
+        data,
+        context_value=request,
+        debug=app.debug
+    )
+
+    status_code = 200 if success else 400
+    return jsonify(result), status_code
+
+query = ObjectType("Query")
+
+query.set_field("users", resolve_users)
+query.set_field("userProjects", resolve_userProjects)
+
+type_defs = load_schema_from_path("schema.graphql")
+schema = make_executable_schema(
+    type_defs, query, snake_case_fallback_resolvers
+)

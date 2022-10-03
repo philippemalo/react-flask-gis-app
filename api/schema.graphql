@@ -1,0 +1,73 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+	users: UsersResult!
+	userProjects(userId: ID!): UserProjectsResult!
+}
+
+type Mutation {
+	createUser(email: String!, password: String!): CreateUserResult!
+}
+
+enum GeometryType {
+	GEOMETRY
+	POINT
+	LINESTRING
+	POLYGON
+	MULTIPOINT
+	MULTILINESTRING
+	MULTIPOLYGON
+	GEOMETRYCOLLECTION
+	CURVE
+}
+
+type User {
+	id: ID!
+	email: String!
+	password: String!
+	projects: [Project!]! 
+}
+
+type UsersResult {
+	success: Boolean!
+	errors: [String]
+	users: [User]
+}
+
+type UserProjectsResult {
+	success: Boolean!
+	errors: [String]
+	projects: [Project]
+}
+
+type CreateUserResult {
+	success: Boolean!
+	errors: [String]
+	user: [User]
+}
+
+type Project {
+	id: ID!
+	name: String!
+	data: [Feature!]!
+}
+
+type DeleteProjectResult {
+	success: Boolean!
+	errors: [String]
+}
+
+
+type Coordinates {
+	latitude: Float!
+	longitude: Float!
+}
+
+type Feature {
+	id: ID!
+	type: GeometryType!
+	geom: [Coordinates!]!
+}
