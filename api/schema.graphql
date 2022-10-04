@@ -1,3 +1,6 @@
+"""
+Schema, Query and Mutation
+"""
 schema {
     query: Query
     mutation: Mutation
@@ -6,12 +9,17 @@ schema {
 type Query {
 	users: UsersResult!
 	userProjects(userId: ID!): UserProjectsResult!
+	projectFeatures(projectId: ID!): ProjectFeaturesResult!
 }
 
 type Mutation {
 	createUser(email: String!, password: String!): CreateUserResult!
 }
 
+
+"""
+Enums
+"""
 enum GeometryType {
 	GEOMETRY
 	POINT
@@ -24,13 +32,37 @@ enum GeometryType {
 	CURVE
 }
 
+
+"""
+Basic types
+"""
 type User {
 	id: ID!
 	email: String!
 	password: String!
-	projects: [Project!]! 
+	projects: [Project]
 }
 
+type Project {
+	id: ID!
+	name: String!
+	data: [Feature]
+}
+
+type Coordinates {
+	longitude: Float!
+	latitude: Float!
+}
+
+type Feature {
+	id: ID!
+	type: GeometryType!
+	geom: [Coordinates!]!
+}
+
+"""
+Query and mutation results types
+"""
 type UsersResult {
 	success: Boolean!
 	errors: [String]
@@ -43,31 +75,19 @@ type UserProjectsResult {
 	projects: [Project]
 }
 
+type ProjectFeaturesResult {
+	success: Boolean!
+	errors: [String]
+	features: [Feature]
+}
+
 type CreateUserResult {
 	success: Boolean!
 	errors: [String]
-	user: [User]
-}
-
-type Project {
-	id: ID!
-	name: String!
-	data: [Feature!]!
+	user: User!
 }
 
 type DeleteProjectResult {
 	success: Boolean!
 	errors: [String]
-}
-
-
-type Coordinates {
-	latitude: Float!
-	longitude: Float!
-}
-
-type Feature {
-	id: ID!
-	type: GeometryType!
-	geom: [Coordinates!]!
 }

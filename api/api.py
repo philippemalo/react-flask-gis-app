@@ -8,7 +8,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 from ariadne import load_schema_from_path, make_executable_schema, graphql_sync, snake_case_fallback_resolvers, ObjectType
 from ariadne.constants import PLAYGROUND_HTML
-from queries import resolve_users, resolve_userProjects
+from queries import resolve_users, resolve_userProjects, resolve_projectFeatures
 
 app = Flask(__name__)
 
@@ -61,6 +61,7 @@ query = ObjectType("Query")
 
 query.set_field("users", resolve_users)
 query.set_field("userProjects", resolve_userProjects)
+query.set_field("projectFeatures", resolve_projectFeatures)
 
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
