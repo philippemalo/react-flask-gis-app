@@ -9,7 +9,6 @@ schema {
 type Query {
 	users: UsersResult!
 	userProjects(userId: ID!): UserProjectsResult!
-	projectFeatures(projectId: ID!): ProjectFeaturesResult!
 }
 
 type Mutation {
@@ -41,24 +40,78 @@ type User {
 	email: String!
 	password: String!
 	projects: [Project]
+	models: [Model]
+}
+
+type Coordinates {
+	latitude: Float!
+	longitude: Float!
+}
+
+type Point {
+	id: ID!
+	geom: Coordinates!
+}
+
+type Linestring {
+	id: ID!
+	geom: [Coordinates!]!
+}
+
+type Polygon {
+	id: ID!
+	geom: [[Coordinates!]!]!
+}
+
+type ModelPoint {
+	id: ID!
+	geom: Coordinates!
+}
+
+type ModelLinestring {
+	id: ID!
+	geom: [Coordinates!]!
+}
+
+type ModelPolygon {
+	id: ID!
+	geom: [[Coordinates!]!]!
+}
+
+type ProjectFeatureCollection {
+	points: [Point]
+	linestrings: [Linestring]
+	polygons: [Polygon]
+}
+
+type ModelFeatureCollection {
+	points: [ModelPoint]
+	linestrings: [ModelLinestring]
+	polygons: [ModelPolygon]
+}
+
+type Model {
+	id: ID!
+	name: String!
+	features: ModelFeatureCollection!
 }
 
 type Project {
 	id: ID!
 	name: String!
-	data: [Feature]
+	models: [ProjectModel]
+	points: [Point]
+	linestrings: [Linestring]
+	polygons: [Polygon]
 }
 
-type Coordinates {
-	longitude: Float!
-	latitude: Float!
-}
-
-type Feature {
+type ProjectModel {
 	id: ID!
-	type: GeometryType!
-	geom: [Coordinates!]!
+	model: Model!
+	centerPoint: Coordinates!
+	rotation: Float!
 }
+
 
 """
 Query and mutation results types
@@ -75,16 +128,15 @@ type UserProjectsResult {
 	projects: [Project]
 }
 
-type ProjectFeaturesResult {
-	success: Boolean!
-	errors: [String]
-	features: [Feature]
-}
-
 type CreateUserResult {
 	success: Boolean!
 	errors: [String]
 	user: User!
+}
+
+type DeleteUserResult {
+	success: Boolean!
+	errors: [String]
 }
 
 type DeleteProjectResult {

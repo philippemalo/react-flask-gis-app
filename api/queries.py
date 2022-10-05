@@ -1,4 +1,4 @@
-from models import User, Project, Feature
+from models import User, Project
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from geoalchemy2 import functions
@@ -51,40 +51,41 @@ def resolve_userProjects(obj, info, userId):
     
     return payload
 
-def resolve_projectFeatures(obj, info, projectId):
-    try:
-        result = session.query(Feature.id, Feature.type, functions.ST_AsGeoJSON(Feature.geom).label('geojson')).filter_by(project_id = projectId)
-        features = []
+# def resolve_projectFeatures(obj, info, projectId):
+#     try:
+#         print('bleh')
+#         # result = session.query(Feature.id, Feature.type, functions.ST_AsGeoJSON(Feature.geom).label('geojson')).filter_by(project_id = projectId)
+#         # features = []
     
-        for feature in result:
-            print('feature: ', feature)
-            print('type: ', type(feature.geojson))
-            geojson = json.loads(feature.geojson)
+#         # for feature in result:
+#         #     print('feature: ', feature)
+#         #     print('type: ', type(feature.geojson))
+#         #     geojson = json.loads(feature.geojson)
             
-            print('COOOOOOOORDS: ', geojson['coordinates'])
-            features.append({"id": feature.id, "type": feature.type, "coordinates": geojson['coordinates']})
+#         #     print('COOOOOOOORDS: ', geojson['coordinates'])
+#         #     features.append({"id": feature.id, "type": feature.type, "coordinates": geojson['coordinates']})
 
-        payload = {
-            "success": True,
-            "features": features
-        }
+#         # payload = {
+#         #     "success": True,
+#         #     "features": features
+#         # }
 
-        # --- graphql return type ---
-        # type Feature {
-        #     id: ID!
-        #     type: GeometryType!
-        #     geom: [Coordinates!]!
-        # }
+#         # --- graphql return type ---
+#         # type Feature {
+#         #     id: ID!
+#         #     type: GeometryType!
+#         #     geom: [Coordinates!]!
+#         # }
 
-        # type Coordinates {
-        #     latitude: Float!
-        #     longitude: Float!
-        # }
+#         # type Coordinates {
+#         #     latitude: Float!
+#         #     longitude: Float!
+#         # }
 
-    except Exception as error:
-        payload = {
-            "success": False,
-            "errors": [str(error)]
-        }
+#     except Exception as error:
+#         payload = {
+#             "success": False,
+#             "errors": [str(error)]
+#         }
     
-    return payload
+#     return payload

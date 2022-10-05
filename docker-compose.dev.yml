@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgis/postgis
+    image: postgis/postgis:14-3.3
     container_name: postgis-dev
     environment:
         - POSTGRES_USER=user
