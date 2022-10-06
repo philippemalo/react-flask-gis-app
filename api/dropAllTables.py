@@ -1,7 +1,8 @@
 from api import engine
 from models import Point, Linestring, Polygon, Project, User, Model, ModelPoint, ModelLinestring, ModelPolygon, ProjectModel
-from sqlalchemy import inspect, text
+from sqlalchemy import inspect
 
+# Table deletion order matters because of relationships and the use of foreign keys
 if inspect(engine).has_table('projectmodel'):
     ProjectModel.__table__.drop(engine)
     

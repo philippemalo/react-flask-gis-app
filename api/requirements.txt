@@ -6,3 +6,4 @@ GeoAlchemy2==0.12.3
 ariadne==0.15.1
 Flask-SQLAlchemy==2.5.1
 Flask-Cors==3.0.10
+bcrypt==4.0.0

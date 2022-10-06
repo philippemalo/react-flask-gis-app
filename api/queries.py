@@ -1,8 +1,6 @@
 from models import User, Project
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from geoalchemy2 import functions
-import json
 
 engine = create_engine("postgresql://user:pass@localhost:5432/db", echo=True)
 Session = sessionmaker(bind=engine)

@@ -131,7 +131,7 @@ type UserProjectsResult {
 type CreateUserResult {
 	success: Boolean!
 	errors: [String]
-	user: User!
+	user: User
 }
 
 type DeleteUserResult {

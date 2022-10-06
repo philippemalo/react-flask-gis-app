@@ -2,6 +2,7 @@ from models import Point, Linestring, Polygon, Project, User, Model, ModelPoint,
 from api import engine
 from sqlalchemy import inspect
 
+# Table creation order matters because of relationships and the use of foreign keys
 if not inspect(engine).has_table('user'):
     User.__table__.create(engine)
 
