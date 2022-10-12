@@ -1,9 +1,9 @@
 import styled from 'styled-components'
 
-export const NavbarContainer = styled.div`
+export const HomeContainer = styled.div`
     display: flex;
     flex-direction: row;
+    align-items: top;
     justify-content: center;
-    align-items: center;
-    gap: 10px;
+    height: 100%;
 `

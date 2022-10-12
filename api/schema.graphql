@@ -9,6 +9,7 @@ schema {
 type Query {
 	users: UsersResult!
 	userProjects(userId: ID!): UserProjectsResult!
+	userLogin(email: String!, password: String!): UserLoginResult
 }
 
 type Mutation {
@@ -116,6 +117,12 @@ type ProjectModel {
 """
 Query and mutation results types
 """
+type UserLoginResult {
+	success: Boolean!
+	errors: [String]
+	user: User
+}
+
 type UsersResult {
 	success: Boolean!
 	errors: [String]
@@ -132,6 +139,7 @@ type CreateUserResult {
 	success: Boolean!
 	errors: [String]
 	user: User
+	jwt: String
 }
 
 type DeleteUserResult {

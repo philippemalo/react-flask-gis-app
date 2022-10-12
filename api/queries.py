@@ -1,3 +1,4 @@
+import bcrypt
 from models import User, Project
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -5,6 +6,26 @@ from sqlalchemy import create_engine
 engine = create_engine("postgresql://user:pass@localhost:5432/db", echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
+
+def resolve_login(obj, info, email, password):
+    try:
+        user = session.query(User).filter_by(email=email)
+        check = bcrypt.checkpw(password.encode('utf-8'), user.first().password.encode('utf-8'))
+        if not check:
+            raise Exception('Wrong password!')
+
+        payload = {
+            "success": True,
+            "user": user.first().to_dict()
+        }
+        
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+
+    return payload
 
 def resolve_users(obj, info):
     try:
@@ -14,7 +35,7 @@ def resolve_users(obj, info):
 
         for user in result:
             users.append(user.to_dict())
-        print(users)
+
         payload = {
             "success": True,
             "users": users
@@ -35,7 +56,7 @@ def resolve_userProjects(obj, info, userId):
 
         for project in result:
             projects.append(project.to_dict())
-        print('PROJECTS : ', projects)
+
         payload = {
             "success": True,
             "projects": projects
