@@ -1,11 +1,36 @@
 import bcrypt
+import jwt
 from models import User, Project
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from flask import request
 
 engine = create_engine("postgresql://user:pass@localhost:5432/db", echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
+
+def resolve_isConnected(obj, info):
+    try:
+        token = request.cookies.get('react-flask-app')
+
+        if token is None:
+            raise Exception('User is not logged in')
+
+        decoded_jwt = jwt.decode(token, "secret", algorithms=["HS256"])
+        connected_user = session.query(User).filter_by(email=decoded_jwt['user']['email'])
+
+        payload = {
+            "success": True,
+            "user": connected_user.first().to_dict()
+        }
+
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+
+    return payload
 
 def resolve_login(obj, info, email, password):
     try:
@@ -19,6 +44,29 @@ def resolve_login(obj, info, email, password):
             "user": user.first().to_dict()
         }
         
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+
+    return payload
+
+def resolve_logout(obj, info):
+    try:
+        token = request.cookies.get('react-flask-app')
+
+        if token is None:
+            raise Exception('User is not logged in')
+            
+        decoded_jwt = jwt.decode(token, "secret", algorithms=["HS256"])
+        connected_user = session.query(User).filter_by(email=decoded_jwt['user']['email'])
+
+        payload = {
+            "success": True,
+            "user": connected_user.first().to_dict()
+        }
+
     except Exception as error:
         payload = {
             "success": False,

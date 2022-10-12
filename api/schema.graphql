@@ -10,6 +10,8 @@ type Query {
 	users: UsersResult!
 	userProjects(userId: ID!): UserProjectsResult!
 	userLogin(email: String!, password: String!): UserLoginResult
+	userLogout: UserLoginResult
+	isConnected: UserLoginResult
 }
 
 type Mutation {
@@ -39,7 +41,6 @@ Basic types
 type User {
 	id: ID!
 	email: String!
-	password: String!
 	projects: [Project]
 	models: [Model]
 }
@@ -139,7 +140,6 @@ type CreateUserResult {
 	success: Boolean!
 	errors: [String]
 	user: User
-	jwt: String
 }
 
 type DeleteUserResult {

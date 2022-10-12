@@ -30,8 +30,7 @@ class User(Base):
     def to_dict(self):
         return {
             "id": self.id,
-            "email": self.email,
-            "password": self.password
+            "email": self.email
         }
 
 class Project(Base):
