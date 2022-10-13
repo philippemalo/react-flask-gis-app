@@ -66,7 +66,7 @@ def graphql_server():
             
             token = jwt.encode({"user": {"id": logged_in_user['id'], "email": logged_in_user['email']}}, "secret", algorithm="HS256")
             res = jsonify(result)
-            res.set_cookie(key='react-flask-app', value=token, max_age=60)
+            res.set_cookie(key='react-flask-app', value=token, max_age=60*60)
 
             return res, status_code
 
@@ -80,7 +80,7 @@ def graphql_server():
             
             token = jwt.encode({"user": {"id": created_user['id'], "email": created_user['email']}}, "secret", algorithm="HS256")
             res = jsonify(result)
-            res.set_cookie(key='react-flask-app', value=token, max_age=60)
+            res.set_cookie(key='react-flask-app', value=token, max_age=60*60)
 
             return res, status_code
 
