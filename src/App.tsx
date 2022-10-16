@@ -15,6 +15,7 @@ import { useCookies } from "react-cookie";
 import jwt_decode from "jwt-decode";
 import { Profile } from "./Profile";
 import { Register } from "./Register";
+import { UserProjects } from "./UserProjects";
 
 type User = {
   id: number;
@@ -63,6 +64,9 @@ export default function App() {
               </Route>
               <Route path="/register">
                 <Register />
+              </Route>
+              <Route path="/myprojects">
+                <UserProjects />
               </Route>
               <Route render={() => <Redirect to="/"></Redirect>} />
             </Switch>

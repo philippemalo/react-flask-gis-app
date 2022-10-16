@@ -25,7 +25,7 @@ const settings = [
 ];
 
 export const Navbar = () => {
-  const [cookies, setCookie, removeCookie] = useCookies(["react-flask-app"]);
+  const [, , removeCookie] = useCookies(["react-flask-app"]);
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
