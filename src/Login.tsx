@@ -9,7 +9,6 @@ export const Login = () => {
   const [password, setPassword] = useState("");
 
   const client = useApolloClient();
-  console.log(email);
 
   const handleLogin = () => {
     client
@@ -57,6 +56,9 @@ export const Login = () => {
               ></TextField>
               <Button variant="contained" onClick={handleLogin}>
                 Log in
+              </Button>
+              <Button variant="text" color="error" href="/register">
+                No account? Sign up here
               </Button>
             </LoginContainer>
           );

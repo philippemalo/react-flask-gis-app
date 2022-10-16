@@ -1,10 +1,9 @@
 import styled from "styled-components";
 
-export const LoginContainer = styled.div`
+export const ProfileContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  height: 80vh;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: 80vh;
-  gap: 10px;
 `;

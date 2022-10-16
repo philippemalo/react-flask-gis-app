@@ -1,5 +1,5 @@
 import React, { createContext } from "react";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import { Home } from "./Home";
 import { Login } from "./Login";
 import Map from "./Map";
@@ -13,6 +13,8 @@ import {
 } from "@apollo/client";
 import { useCookies } from "react-cookie";
 import jwt_decode from "jwt-decode";
+import { Profile } from "./Profile";
+import { Register } from "./Register";
 
 type User = {
   id: number;
@@ -56,6 +58,13 @@ export default function App() {
               <Route path="/login">
                 <Login />
               </Route>
+              <Route path="/profile">
+                <Profile />
+              </Route>
+              <Route path="/register">
+                <Register />
+              </Route>
+              <Route render={() => <Redirect to="/"></Redirect>} />
             </Switch>
           </BrowserRouter>
         </AppContainer>
