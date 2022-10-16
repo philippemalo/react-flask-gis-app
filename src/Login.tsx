@@ -1,19 +1,67 @@
-import React from 'react'
-import { UserContext } from './App'
-import { LoginContainer } from './styles/LoginContainer.css'
+import { gql, useApolloClient } from "@apollo/client";
+import { Button, TextField } from "@mui/material";
+import React, { useState } from "react";
+import { UserContext } from "./App";
+import { LoginContainer } from "./styles/LoginContainer.css";
 
 export const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const client = useApolloClient();
+  console.log(email);
+
+  const handleLogin = () => {
+    client
+      .query({
+        query: gql`
+        query userLogin {
+          userLogin(email: "${email}", password: "${password}") {
+            success
+            errors
+            user {
+              id
+              email
+            }
+          }
+        }
+      `,
+      })
+      .then((res) =>
+        res?.data?.userLogin?.success
+          ? window.location.replace("/home")
+          : console.log("wrong creds")
+      );
+  };
+
   return (
     <UserContext.Consumer>
-      {value => {
+      {(value) => {
         if (value.email) {
-          window.location.replace('/home')
+          window.location.replace("/home");
         } else {
           return (
-            <LoginContainer>Login</LoginContainer>
-          )
+            <LoginContainer>
+              <TextField
+                id="email"
+                label="EMAIL"
+                variant="outlined"
+                onChange={(e) => setEmail(e.currentTarget.value)}
+              ></TextField>
+              <TextField
+                id="password"
+                label="PASSWORD"
+                variant="outlined"
+                type="password"
+                onChange={(e) => setPassword(e.currentTarget.value)}
+              ></TextField>
+              <Button variant="contained" onClick={handleLogin}>
+                Log in
+              </Button>
+            </LoginContainer>
+          );
         }
       }}
     </UserContext.Consumer>
-  )
-}
+  );
+};
