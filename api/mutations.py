@@ -1,4 +1,4 @@
-from models import User
+from models import User, Model, Project
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import bcrypt
@@ -28,6 +28,100 @@ def resolve_createUser(obj, info, email, password):
         payload = {
             "success": True,
             "user": created_user.to_dict()
+        }
+
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+
+    return payload
+
+def resolve_createModel(obj, info, modelName, userId):
+    try:
+        new_model = Model(name=modelName)
+        new_model.user_id = userId
+        session.add(new_model)
+        session.commit()
+
+        created_model = session.query(Model).filter_by(id=new_model.id).first()
+
+        payload = {
+            "success": True,
+            "model": created_model.to_dict()
+        }
+
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+
+    return payload
+
+def resolve_createProject(obj, info, projectName, userId):
+    try:
+        new_project = Project(name=projectName)
+        new_project.user_id = userId
+        session.add(new_project)
+        session.commit()
+
+        created_project = session.query(Project).filter_by(id=new_project.id).first()
+
+        payload = {
+            "success": True,
+            "project": created_project.to_dict()
+        }
+
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+
+    return payload
+
+def resolve_deleteModel(obj, info, modelId, userId):
+    try:
+        model_to_delete: Model | None = session.query(Model).filter_by(id=modelId).first()
+
+        if not model_to_delete:
+            raise Exception('This model does not exist in the database')
+
+        if int(model_to_delete.user_id) != int(userId):
+            raise Exception('This model cannot be deleted by this user')
+
+        session.delete(model_to_delete)
+        session.commit()
+
+        payload = {
+            "success": True
+        }
+
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+
+    return payload
+
+def resolve_deleteProject(obj, info, projectId, userId):
+    try:
+        project_to_delete: Project | None = session.query(Project).filter_by(id=projectId).first()
+        
+        if not project_to_delete:
+            raise Exception('This project does not exist in the database')
+
+        if int(project_to_delete.user_id) != int(userId):
+            raise Exception('This project cannot be deleted by this user')
+
+        session.delete(project_to_delete)
+        session.commit()
+
+        payload = {
+            "success": True
         }
 
     except Exception as error:

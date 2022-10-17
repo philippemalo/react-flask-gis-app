@@ -5,5 +5,9 @@ export const UserProjectsContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: 80vh;
+  margin: 20px 0;
+  height: 90vh;
+  gap: 10px;
+  flex-wrap: wrap;
+  overflow-y: auto;
 `;

@@ -1,6 +1,6 @@
 import bcrypt
 import jwt
-from models import User, Project
+from models import User, Project, Model
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from flask import request
@@ -108,6 +108,48 @@ def resolve_userProjects(obj, info, userId):
         payload = {
             "success": True,
             "projects": projects
+        }
+
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    
+    return payload
+
+def resolve_userModels(obj, info, userId):
+    try:
+        result = session.query(Model).filter_by(user_id = userId)
+        models = []
+
+        for model in result:
+            models.append(model.to_dict())
+
+        payload = {
+            "success": True,
+            "models": models
+        }
+
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    
+    return payload
+
+def resolve_allModels(obj, info):
+    try:
+        result = session.query(Model)
+        models = []
+
+        for model in result:
+            models.append(model.to_dict())
+
+        payload = {
+            "success": True,
+            "models": models
         }
 
     except Exception as error:

@@ -40,7 +40,7 @@ class Project(Base):
     
     points = relationship('Point')
     linestrings = relationship('Linestring')
-    polygon = relationship('Polygon')
+    polygons = relationship('Polygon')
 
     name = Column(String)
 
@@ -48,6 +48,17 @@ class Project(Base):
         return {
             "id": self.id,
             "name": self.name
+        }
+
+    def features_to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "features": {
+                "points": self.points,
+                "linestrings": self.linestrings,
+                "polygons": self.polygons
+            }
         }
 
 class Model(Base):

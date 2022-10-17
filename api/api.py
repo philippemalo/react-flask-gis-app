@@ -10,8 +10,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 from ariadne import load_schema_from_path, make_executable_schema, graphql_sync, snake_case_fallback_resolvers, ObjectType
 from ariadne.constants import PLAYGROUND_HTML
-from queries import resolve_users, resolve_userProjects, resolve_login, resolve_isConnected, resolve_logout
-from mutations import resolve_createUser
+from queries import resolve_users, resolve_userProjects, resolve_login, resolve_isConnected, resolve_logout, resolve_userModels, resolve_allModels
+from mutations import resolve_createUser, resolve_createModel, resolve_createProject, resolve_deleteModel, resolve_deleteProject
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, origins="http://localhost:3000")
@@ -115,8 +115,14 @@ query.set_field("userLogin", resolve_login)
 query.set_field("userLogout", resolve_logout)
 query.set_field("users", resolve_users)
 query.set_field("userProjects", resolve_userProjects)
+query.set_field("userModels", resolve_userModels)
+query.set_field("allModels", resolve_allModels)
 
 mutation.set_field("createUser", resolve_createUser)
+mutation.set_field("createModel", resolve_createModel)
+mutation.set_field("createProject", resolve_createProject)
+mutation.set_field("deleteModel", resolve_deleteModel)
+mutation.set_field("deleteProject", resolve_deleteProject)
 
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(

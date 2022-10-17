@@ -2,152 +2,169 @@
 Schema, Query and Mutation
 """
 schema {
-    query: Query
-    mutation: Mutation
+  query: Query
+  mutation: Mutation
 }
 
 type Query {
-	users: UsersResult!
-	userProjects(userId: ID!): UserProjectsResult!
-	userLogin(email: String!, password: String!): UserLoginResult
-	userLogout: UserLoginResult
-	isConnected: UserLoginResult
+  users: UsersResult!
+  userProjects(userId: ID!): UserProjectsResult!
+  userModels(userId: ID!): UserModelsResult
+  allModels: UserModelsResult
+  userLogin(email: String!, password: String!): UserLoginResult
+  userLogout: UserLoginResult
+  isConnected: UserLoginResult
 }
 
 type Mutation {
-	createUser(email: String!, password: String!): CreateUserResult!
+  createUser(email: String!, password: String!): CreateUserResult!
+  createModel(modelName: String!, userId: ID!): CreateModelResult!
+  createProject(projectName: String!, userId: ID!): CreateProjectResult!
+  deleteModel(modelId: ID!, userId: ID!): DeletetionResult!
+  deleteProject(projectId: ID!, userId: ID!): DeletetionResult!
 }
-
 
 """
 Enums
 """
 enum GeometryType {
-	GEOMETRY
-	POINT
-	LINESTRING
-	POLYGON
-	MULTIPOINT
-	MULTILINESTRING
-	MULTIPOLYGON
-	GEOMETRYCOLLECTION
-	CURVE
+  GEOMETRY
+  POINT
+  LINESTRING
+  POLYGON
+  MULTIPOINT
+  MULTILINESTRING
+  MULTIPOLYGON
+  GEOMETRYCOLLECTION
+  CURVE
 }
-
 
 """
 Basic types
 """
 type User {
-	id: ID!
-	email: String!
-	projects: [Project]
-	models: [Model]
+  id: ID!
+  email: String!
+  projects: [Project]
+  models: [Model]
 }
 
 type Coordinates {
-	latitude: Float!
-	longitude: Float!
+  latitude: Float!
+  longitude: Float!
 }
 
 type Point {
-	id: ID!
-	geom: Coordinates!
+  id: ID!
+  geom: Coordinates!
 }
 
 type Linestring {
-	id: ID!
-	geom: [Coordinates!]!
+  id: ID!
+  geom: [Coordinates!]!
 }
 
 type Polygon {
-	id: ID!
-	geom: [[Coordinates!]!]!
+  id: ID!
+  geom: [[Coordinates!]!]!
 }
 
 type ModelPoint {
-	id: ID!
-	geom: Coordinates!
+  id: ID!
+  geom: Coordinates!
 }
 
 type ModelLinestring {
-	id: ID!
-	geom: [Coordinates!]!
+  id: ID!
+  geom: [Coordinates!]!
 }
 
 type ModelPolygon {
-	id: ID!
-	geom: [[Coordinates!]!]!
+  id: ID!
+  geom: [[Coordinates!]!]!
 }
 
 type ProjectFeatureCollection {
-	points: [Point]
-	linestrings: [Linestring]
-	polygons: [Polygon]
+  points: [Point]
+  linestrings: [Linestring]
+  polygons: [Polygon]
 }
 
 type ModelFeatureCollection {
-	points: [ModelPoint]
-	linestrings: [ModelLinestring]
-	polygons: [ModelPolygon]
+  points: [ModelPoint]
+  linestrings: [ModelLinestring]
+  polygons: [ModelPolygon]
 }
 
 type Model {
-	id: ID!
-	name: String!
-	features: ModelFeatureCollection!
+  id: ID!
+  name: String!
+  features: ModelFeatureCollection!
 }
 
 type Project {
-	id: ID!
-	name: String!
-	models: [ProjectModel]
-	points: [Point]
-	linestrings: [Linestring]
-	polygons: [Polygon]
+  id: ID!
+  name: String!
+  models: [ProjectModel]
+  features: ProjectFeatureCollection!
 }
 
 type ProjectModel {
-	id: ID!
-	model: Model!
-	centerPoint: Coordinates!
-	rotation: Float!
+  id: ID!
+  model: Model!
+  centerPoint: Coordinates!
+  rotation: Float!
 }
 
-
 """
-Query and mutation results types
+Query results types
 """
 type UserLoginResult {
-	success: Boolean!
-	errors: [String]
-	user: User
+  success: Boolean!
+  errors: [String]
+  user: User
 }
 
 type UsersResult {
-	success: Boolean!
-	errors: [String]
-	users: [User]
+  success: Boolean!
+  errors: [String]
+  users: [User]
 }
 
 type UserProjectsResult {
-	success: Boolean!
-	errors: [String]
-	projects: [Project]
+  success: Boolean!
+  errors: [String]
+  projects: [Project]
 }
 
+type UserModelsResult {
+  success: Boolean!
+  errors: [String]
+  models: [Model]
+}
+
+"""
+Mutation results types
+"""
 type CreateUserResult {
-	success: Boolean!
-	errors: [String]
-	user: User
+  success: Boolean!
+  errors: [String]
+  user: User
 }
 
-type DeleteUserResult {
-	success: Boolean!
-	errors: [String]
+type DeletetionResult {
+  success: Boolean!
+  errors: [String]
 }
 
-type DeleteProjectResult {
-	success: Boolean!
-	errors: [String]
+type CreateModelResult {
+  success: Boolean!
+  errors: [String]
+  model: Model
+}
+
+type CreateProjectResult {
+  success: Boolean!
+  errors: [String]
+  project: Project
 }
