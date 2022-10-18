@@ -99,6 +99,11 @@ def resolve_users(obj, info):
 
 def resolve_userProjects(obj, info, userId):
     try:
+        token = request.cookies.get('react-flask-app')
+        if token is None:
+            raise Exception('User is not logged in')
+        jwt.decode(token, "secret", algorithms=["HS256"])
+
         result = session.query(Project).filter_by(user_id = userId)
         projects = []
 
@@ -120,6 +125,11 @@ def resolve_userProjects(obj, info, userId):
 
 def resolve_userModels(obj, info, userId):
     try:
+        token = request.cookies.get('react-flask-app')
+        if token is None:
+            raise Exception('User is not logged in')
+        jwt.decode(token, "secret", algorithms=["HS256"])
+
         result = session.query(Model).filter_by(user_id = userId)
         models = []
 
@@ -141,6 +151,11 @@ def resolve_userModels(obj, info, userId):
 
 def resolve_allModels(obj, info):
     try:
+        token = request.cookies.get('react-flask-app')
+        if token is None:
+            raise Exception('User is not logged in')
+        jwt.decode(token, "secret", algorithms=["HS256"])
+        
         result = session.query(Model)
         models = []
 

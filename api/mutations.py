@@ -1,3 +1,5 @@
+from flask import request
+import jwt
 from models import User, Model, Project
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -40,6 +42,11 @@ def resolve_createUser(obj, info, email, password):
 
 def resolve_createModel(obj, info, modelName, userId):
     try:
+        token = request.cookies.get('react-flask-app')
+        if token is None:
+            raise Exception('User is not logged in')
+        jwt.decode(token, "secret", algorithms=["HS256"])
+        
         new_model = Model(name=modelName)
         new_model.user_id = userId
         session.add(new_model)
@@ -62,6 +69,11 @@ def resolve_createModel(obj, info, modelName, userId):
 
 def resolve_createProject(obj, info, projectName, userId):
     try:
+        token = request.cookies.get('react-flask-app')
+        if token is None:
+            raise Exception('User is not logged in')
+        jwt.decode(token, "secret", algorithms=["HS256"])
+
         new_project = Project(name=projectName)
         new_project.user_id = userId
         session.add(new_project)
@@ -84,6 +96,11 @@ def resolve_createProject(obj, info, projectName, userId):
 
 def resolve_deleteModel(obj, info, modelId, userId):
     try:
+        token = request.cookies.get('react-flask-app')
+        if token is None:
+            raise Exception('User is not logged in')
+        jwt.decode(token, "secret", algorithms=["HS256"])
+
         model_to_delete: Model | None = session.query(Model).filter_by(id=modelId).first()
 
         if not model_to_delete:
@@ -109,6 +126,11 @@ def resolve_deleteModel(obj, info, modelId, userId):
 
 def resolve_deleteProject(obj, info, projectId, userId):
     try:
+        token = request.cookies.get('react-flask-app')
+        if token is None:
+            raise Exception('User is not logged in')
+        jwt.decode(token, "secret", algorithms=["HS256"])
+        
         project_to_delete: Project | None = session.query(Project).filter_by(id=projectId).first()
         
         if not project_to_delete:
