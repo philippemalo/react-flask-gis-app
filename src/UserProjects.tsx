@@ -19,7 +19,7 @@ export const UserProjects = () => {
     .query({
       query: gql`
     query fetchUserProjects {
-      userProjects(userId: "${connectedUser.id}") {
+      userProjects(userId: "${connectedUser.user.id}") {
         success
         errors
         projects {
@@ -37,7 +37,7 @@ export const UserProjects = () => {
   return (
     <UserContext.Consumer>
       {(value) => {
-        if (!value.email) {
+        if (!value.authed) {
           window.location.replace("/login");
         } else {
           return (

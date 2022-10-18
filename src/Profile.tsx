@@ -7,7 +7,7 @@ export const Profile = () => {
   return (
     <UserContext.Consumer>
       {(value) => {
-        if (!value.email) {
+        if (!value.authed) {
           window.location.replace("/login");
         } else {
           return (
@@ -23,7 +23,7 @@ export const Profile = () => {
                 <TextField
                   InputProps={{ readOnly: true }}
                   label="Email address"
-                  defaultValue={value.email}
+                  defaultValue={value.user.email}
                 />
               </div>
             </ProfileContainer>

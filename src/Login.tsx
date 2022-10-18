@@ -36,7 +36,7 @@ export const Login = () => {
   return (
     <UserContext.Consumer>
       {(value) => {
-        if (value.email) {
+        if (value.authed) {
           window.location.replace("/home");
         } else {
           return (
