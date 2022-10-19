@@ -10,7 +10,6 @@ import {
   InMemoryCache,
   ApolloProvider,
   createHttpLink,
-  gql,
 } from "@apollo/client";
 import { useCookies } from "react-cookie";
 import jwt_decode from "jwt-decode";
@@ -18,15 +17,12 @@ import { Profile } from "./Profile";
 import { Register } from "./Register";
 import { UserProjects } from "./UserProjects";
 import { CircularProgress } from "@mui/material";
-
-type User = {
-  id: number;
-  email: string;
-};
+import { isConnectedQueryDocument } from "./graphql-types/queries";
+import { User } from "./gql/graphql";
 
 export const UserContext = createContext({
   authed: false,
-  user: { id: 0, email: "" } as User,
+  user: { id: "", email: "" } as User,
 });
 
 export default function App() {
@@ -36,7 +32,7 @@ export default function App() {
 
   const decoded: { user: User } = !!cookies?.["react-flask-app"]
     ? jwt_decode(cookies?.["react-flask-app"])
-    : { user: { id: 0, email: "" } };
+    : { user: { id: "", email: "" } };
   const connectedUser = decoded?.user;
 
   const link = createHttpLink({
@@ -50,26 +46,11 @@ export default function App() {
     link,
   });
 
-  client
-    .query({
-      query: gql`
-        query isConnected {
-          isConnected {
-            success
-            errors
-            user {
-              id
-              email
-            }
-          }
-        }
-      `,
-    })
-    .then((res) => {
-      console.log(res);
-      if (res.data.isConnected.success) setIsConnected(true);
-      setLoading(false);
-    });
+  client.query({ query: isConnectedQueryDocument }).then((res) => {
+    console.log(res);
+    if (res.data.isConnected?.success) setIsConnected(true);
+    setLoading(false);
+  });
 
   if (loading) {
     return (

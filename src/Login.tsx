@@ -1,36 +1,24 @@
-import { gql, useApolloClient } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { Button, TextField } from "@mui/material";
 import React, { useState } from "react";
 import { UserContext } from "./App";
+import { userLoginQueryDocument } from "./graphql-types/queries";
 import { LoginContainer } from "./styles/LoginContainer.css";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const client = useApolloClient();
+  const [userLogin] = useLazyQuery(userLoginQueryDocument);
 
   const handleLogin = () => {
-    client
-      .query({
-        query: gql`
-        query userLogin {
-          userLogin(email: "${email}", password: "${password}") {
-            success
-            errors
-            user {
-              id
-              email
-            }
-          }
-        }
-      `,
-      })
-      .then((res) =>
+    userLogin({ variables: { email: email, password: password } }).then(
+      (res) => {
         res?.data?.userLogin?.success
           ? window.location.replace("/home")
-          : console.log("wrong creds")
-      );
+          : console.log("wrong creds");
+      }
+    );
   };
 
   return (

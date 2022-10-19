@@ -1,4 +1,4 @@
-import { gql, useApolloClient } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Box,
   Button,
@@ -13,36 +13,20 @@ import React, { useContext, useState } from "react";
 import { UserContext } from "./App";
 import { UserProjectsContainer } from "./styles/UserProjectsContainer.css";
 import AddIcon from "@mui/icons-material/Add";
-
-type Project = {
-  id: number;
-  name: string;
-};
+import { userProjectsQueryDocument } from "./graphql-types/queries";
+import { createProjectMutationDocument } from "./graphql-types/mutations";
 
 export const UserProjects = () => {
-  const [projects, setProjects] = useState([]);
-  const client = useApolloClient();
   const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
 
   const connectedUser = useContext(UserContext);
 
-  client
-    .query({
-      query: gql`
-    query fetchUserProjects {
-      userProjects(userId: "${connectedUser.user.id}") {
-        success
-        errors
-        projects {
-          id
-          name
-        }
-      }
-    }
-    `,
-    })
-    .then((res) => setProjects(res.data.userProjects.projects));
+  const [createProject] = useMutation(createProjectMutationDocument);
+
+  const { data, refetch } = useQuery(userProjectsQueryDocument, {
+    variables: { userId: connectedUser.user.id },
+  });
 
   const modalStyle = {
     display: "flex",
@@ -59,25 +43,12 @@ export const UserProjects = () => {
   };
 
   const handleCreateProject = () => {
-    client
-      .mutate({
-        mutation: gql`
-          mutation createProject {
-            createProject(projectName: "${newProjectName}", userId: "${connectedUser.user.id}") {
-              success
-              errors
-              project {
-                id
-                name
-              }
-            }
-          }
-        `,
-      })
-      .then((res) => {
-        setShowCreateProjectModal(false);
-        console.log(res);
-      });
+    createProject({
+      variables: { projectName: newProjectName, userId: connectedUser.user.id },
+    }).then((res) => {
+      refetch({ userId: connectedUser.user.id });
+      setShowCreateProjectModal(false);
+    });
   };
 
   const handleCloseModal = () => {
@@ -153,17 +124,17 @@ export const UserProjects = () => {
                     </Typography>
                   </CardContent>
                 </Card>
-                {projects.map((project: Project) => (
-                  <Card key={project.id} sx={{ width: 250, height: 200 }}>
+                {data?.userProjects?.projects?.map((project) => (
+                  <Card key={project?.id} sx={{ width: 250, height: 200 }}>
                     <CardMedia
                       component="img"
                       height="140"
                       image="https://images.landscapingnetwork.com/pictures/images/900x705Max/site_8/oxford-college-of-garden-design_3126.jpg"
-                      alt={project.name}
+                      alt={project?.name}
                     />
                     <CardContent>
                       <Typography variant="h5" component="div">
-                        {project.name}
+                        {project?.name}
                       </Typography>
                     </CardContent>
                   </Card>

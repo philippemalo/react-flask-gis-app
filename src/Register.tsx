@@ -1,7 +1,8 @@
-import { gql, useApolloClient } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { Alert, Button, Snackbar, TextField } from "@mui/material";
 import React, { useState } from "react";
 import { UserContext } from "./App";
+import { createUserMutationDocument } from "./graphql-types/mutations";
 import { RegisterContainer } from "./styles/RegisterContainer.css";
 
 const validateEmail = (email: string) => {
@@ -17,7 +18,7 @@ export const Register = () => {
   const [password, setPassword] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
-  const client = useApolloClient();
+  const [createUser] = useMutation(createUserMutationDocument);
 
   const handleRegister = () => {
     const isValid = validateEmail(email);
@@ -27,26 +28,12 @@ export const Register = () => {
       return;
     }
 
-    client
-      .mutate({
-        mutation: gql`
-        mutation createUser {
-          createUser(email: "${email}", password: "${password}") {
-            success
-            errors
-            user {
-              id
-              email
-            }
-          }
-        }
-      `,
-      })
-      .then((res) =>
+    createUser({ variables: { email: email, password: password } }).then(
+      (res) =>
         res?.data?.createUser?.success
           ? window.location.replace("/home")
           : console.log("wrong creds")
-      );
+    );
   };
 
   const handleClose = (
