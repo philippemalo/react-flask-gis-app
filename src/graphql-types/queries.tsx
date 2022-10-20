@@ -38,3 +38,29 @@ export const userProjectsQueryDocument = graphql(`
     }
   }
 `);
+
+export const userModelsQueryDocument = graphql(`
+  query userModelsQueryDocument($userId: ID!) {
+    userModels(userId: $userId) {
+      success
+      errors
+      models {
+        id
+        name
+      }
+    }
+  }
+`);
+
+export const allModelsQueryDocument = graphql(`
+  query allModelsQueryDocument {
+    allModels {
+      success
+      errors
+      models {
+        id
+        name
+      }
+    }
+  }
+`);

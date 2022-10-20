@@ -13,18 +13,18 @@ import React, { useContext, useState } from "react";
 import { UserContext } from "./App";
 import { UserProjectsContainer } from "./styles/UserProjectsContainer.css";
 import AddIcon from "@mui/icons-material/Add";
-import { userProjectsQueryDocument } from "./graphql-types/queries";
-import { createProjectMutationDocument } from "./graphql-types/mutations";
+import { userModelsQueryDocument } from "./graphql-types/queries";
+import { createModelMutationDocument } from "./graphql-types/mutations";
 
-export const UserProjects = () => {
-  const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
+export const UserModels = () => {
+  const [showCreateModelModal, setShowCreateModelModal] = useState(false);
+  const [newModelName, setNewModelName] = useState("");
 
   const connectedUser = useContext(UserContext);
 
-  const [createProject] = useMutation(createProjectMutationDocument);
+  const [createModel] = useMutation(createModelMutationDocument);
 
-  const { data, refetch } = useQuery(userProjectsQueryDocument, {
+  const { data, refetch } = useQuery(userModelsQueryDocument, {
     variables: { userId: connectedUser.user.id },
   });
 
@@ -41,17 +41,17 @@ export const UserProjects = () => {
     gap: "10px",
   };
 
-  const handleCreateProject = () => {
-    createProject({
-      variables: { projectName: newProjectName, userId: connectedUser.user.id },
+  const handleCreateModel = () => {
+    createModel({
+      variables: { modelName: newModelName, userId: connectedUser.user.id },
     }).then((res) => {
       refetch({ userId: connectedUser.user.id });
-      setShowCreateProjectModal(false);
+      setShowCreateModelModal(false);
     });
   };
 
   const handleCloseModal = () => {
-    setShowCreateProjectModal(false);
+    setShowCreateModelModal(false);
   };
 
   return (
@@ -63,7 +63,7 @@ export const UserProjects = () => {
           return (
             <>
               <Modal
-                open={showCreateProjectModal}
+                open={showCreateModelModal}
                 onClose={handleCloseModal}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
@@ -74,13 +74,13 @@ export const UserProjects = () => {
                     variant="h6"
                     component="h2"
                   >
-                    Choose a name for your new project
+                    Choose a name for your new model
                   </Typography>
                   <TextField
-                    id="newproject"
-                    label="Project name"
+                    id="newpmodel"
+                    label="Model name"
                     variant="standard"
-                    onChange={(e) => setNewProjectName(e.currentTarget.value)}
+                    onChange={(e) => setNewModelName(e.currentTarget.value)}
                   />
                   <div
                     style={{
@@ -89,12 +89,12 @@ export const UserProjects = () => {
                     }}
                   >
                     <Button
-                      onClick={handleCreateProject}
-                      disabled={!newProjectName}
+                      onClick={handleCreateModel}
+                      disabled={!newModelName}
                     >
                       Create
                     </Button>
-                    <Button onClick={() => setShowCreateProjectModal(false)}>
+                    <Button onClick={() => setShowCreateModelModal(false)}>
                       Cancel
                     </Button>
                   </div>
@@ -104,7 +104,7 @@ export const UserProjects = () => {
                 <Card
                   key={"new project"}
                   sx={{ width: 250, height: 200 }}
-                  onClick={() => setShowCreateProjectModal(true)}
+                  onClick={() => setShowCreateModelModal(true)}
                   style={{ cursor: "pointer" }}
                 >
                   <CardContent
@@ -119,25 +119,25 @@ export const UserProjects = () => {
                   >
                     <AddIcon fontSize="large" color="primary" />
                     <Typography variant="h5" component="div">
-                      {"New project"}
+                      {"New model"}
                     </Typography>
                   </CardContent>
                 </Card>
-                {data?.userProjects?.projects?.map((project) => (
+                {data?.userModels?.models?.map((model) => (
                   <Card
-                    key={project?.id}
+                    key={model?.id}
                     sx={{ width: 250, height: 200 }}
                     style={{ cursor: "pointer" }}
                   >
                     <CardMedia
                       component="img"
                       height="140"
-                      image="https://images.landscapingnetwork.com/pictures/images/900x705Max/site_8/oxford-college-of-garden-design_3126.jpg"
-                      alt={project?.name}
+                      image="https://www.clipartmax.com/png/middle/3-36982_tree-01-top-view-tree-icon.png"
+                      alt={model?.name}
                     />
                     <CardContent>
                       <Typography variant="h5" component="div">
-                        {project?.name}
+                        {model?.name}
                       </Typography>
                     </CardContent>
                   </Card>

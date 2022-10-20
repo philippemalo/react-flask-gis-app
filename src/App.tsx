@@ -19,6 +19,7 @@ import { UserProjects } from "./UserProjects";
 import { CircularProgress } from "@mui/material";
 import { isConnectedQueryDocument } from "./graphql-types/queries";
 import { User } from "./gql/graphql";
+import { UserModels } from "./UserModels";
 
 export const UserContext = createContext({
   authed: false,
@@ -47,7 +48,6 @@ export default function App() {
   });
 
   client.query({ query: isConnectedQueryDocument }).then((res) => {
-    console.log(res);
     if (res.data.isConnected?.success) setIsConnected(true);
     setLoading(false);
   });
@@ -93,6 +93,9 @@ export default function App() {
                 </Route>
                 <Route path="/myprojects">
                   <UserProjects />
+                </Route>
+                <Route path="/mymodels">
+                  <UserModels />
                 </Route>
                 <Route render={() => <Redirect to="/"></Redirect>} />
               </Switch>

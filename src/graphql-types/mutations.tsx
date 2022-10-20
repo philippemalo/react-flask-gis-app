@@ -25,3 +25,16 @@ export const createProjectMutationDocument = graphql(`
     }
   }
 `);
+
+export const createModelMutationDocument = graphql(`
+  mutation createModelMutationDocument($modelName: String!, $userId: ID!) {
+    createModel(modelName: $modelName, userId: $userId) {
+      success
+      errors
+      model {
+        id
+        name
+      }
+    }
+  }
+`);

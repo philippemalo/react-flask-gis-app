@@ -21,6 +21,7 @@ const pages = [{ name: "Map", link: "/map" }];
 const settings = [
   { name: "Profile", link: "/profile" },
   { name: "My Projects", link: "/myprojects" },
+  { name: "My Models", link: "/mymodels" },
   { name: "Logout", link: "/logout" },
 ];
 
