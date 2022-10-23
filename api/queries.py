@@ -136,6 +136,7 @@ def resolve_userModels(obj, info, userId):
         for model in result:
             models.append(model.to_dict())
 
+        print(type(models[0]["featureCollection"][0]["geometry"]))
         payload = {
             "success": True,
             "models": models
@@ -147,6 +148,7 @@ def resolve_userModels(obj, info, userId):
             "errors": [str(error)]
         }
     
+    print('PAYLOAD: ', payload)
     return payload
 
 def resolve_allModels(obj, info):

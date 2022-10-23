@@ -108,7 +108,11 @@ def graphql_server():
     else:
         return jsonify(result), status_code
 
-# coordinates_scalar = ScalarType("Coordinate", coordinates_serializer, coordinates_value_parser, coordinates_literal_parser)
+coordinates_scalar = ScalarType("Coordinate")
+coordinates_scalar.set_serializer(coordinates_serializer)
+# coordinates_scalar.set_value_parser(coordinates_value_parser)
+# coordinates_scalar.set_literal_parser(coordinates_literal_parser)
+
 # json_scalar = ScalarType("JSON", json_serializer, json_value_parser, json_literal_parser)
 
 query = ObjectType("Query")
@@ -130,6 +134,7 @@ mutation.set_field("deleteProject", resolve_deleteProject)
 
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
-    type_defs, query, mutation, snake_case_fallback_resolvers
+    # type_defs, query, mutation, snake_case_fallback_resolvers
+    type_defs, query, mutation, snake_case_fallback_resolvers, coordinates_scalar
     # type_defs, query, mutation, snake_case_fallback_resolvers, coordinates_scalar, json_scalar
 )

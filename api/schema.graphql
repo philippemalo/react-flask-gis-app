@@ -7,7 +7,6 @@ schema {
 }
 
 scalar Coordinate
-scalar JSON
 
 type Query {
   users: UsersResult!
@@ -58,7 +57,7 @@ type Geometry {
 type Feature {
   id: ID!
   geometry: Geometry!
-  properties: JSON!
+  properties: String!
   type: String!
 }
 
@@ -68,18 +67,18 @@ type Model {
   featureCollection: [Feature]
 }
 
-type Project {
-  id: ID!
-  name: String!
-  models: [ProjectModel]
-  featureCollection: [Feature]
-}
-
 type ProjectModel {
   id: ID!
   featureCollection: [Feature!]!
   centerPoint: Coordinate!
   rotation: Float!
+}
+
+type Project {
+  id: ID!
+  name: String!
+  models: [ProjectModel]
+  featureCollection: [Feature]
 }
 
 """

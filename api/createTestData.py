@@ -2,7 +2,6 @@ import bcrypt
 from api import engine
 from models import User, Project, Model, ProjectModel, Feature, Geom
 from sqlalchemy.orm import sessionmaker
-from geoalchemy2 import functions
 
 # create session and bind engine
 Session = sessionmaker(bind=engine)
@@ -33,6 +32,7 @@ for i in query2:
 
 # create Model object and assign user foreign key
 newModel = Model(name='Park bench')
+newModel.user_id = toto.id
 # add Model object to session and commit
 session.add(newModel)
 session.commit()
@@ -48,16 +48,11 @@ query7 = session.query(Feature)
 for i in query7:
     print(i)
 
-newGeomForFeature = Geom(coordinates='POINT(1 1)')
-newGeomForFeature.feature_id = newModelFeature.id
-session.add(newGeomForFeature)
+newGeomForFeature1 = Geom(coordinates='POINT(1 1)')
+newGeomForFeature1.feature_id = newModelFeature.id
+session.add(newGeomForFeature1)
+session.commit()
+
 query8 = session.query(Geom)
 for i in query8:
     print(i)
-# newProjectModelAssociation = ProjectModel(center_point='POINT(0 0)', rotation=0)
-# newProjectModelAssociation.project_id = newProject.id
-# newProjectModelAssociation.model_id = newModel.id
-# session.add(newProjectModelAssociation)
-# session.commit()
-
-
