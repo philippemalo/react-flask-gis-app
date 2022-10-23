@@ -6,6 +6,9 @@ schema {
   mutation: Mutation
 }
 
+scalar Coordinate
+scalar JSON
+
 type Query {
   users: UsersResult!
   userProjects(userId: ID!): UserProjectsResult!
@@ -28,15 +31,12 @@ type Mutation {
 Enums
 """
 enum GeometryType {
-  GEOMETRY
   POINT
-  LINESTRING
-  POLYGON
   MULTIPOINT
+  LINESTRING
   MULTILINESTRING
+  POLYGON
   MULTIPOLYGON
-  GEOMETRYCOLLECTION
-  CURVE
 }
 
 """
@@ -49,70 +49,36 @@ type User {
   models: [Model]
 }
 
-type Coordinates {
-  latitude: Float!
-  longitude: Float!
-}
-
-type Point {
+type Geometry {
   id: ID!
-  geom: Coordinates!
+  type: GeometryType!
+  coordinates: [Coordinate!]!
 }
 
-type Linestring {
+type Feature {
   id: ID!
-  geom: [Coordinates!]!
-}
-
-type Polygon {
-  id: ID!
-  geom: [[Coordinates!]!]!
-}
-
-type ModelPoint {
-  id: ID!
-  geom: Coordinates!
-}
-
-type ModelLinestring {
-  id: ID!
-  geom: [Coordinates!]!
-}
-
-type ModelPolygon {
-  id: ID!
-  geom: [[Coordinates!]!]!
-}
-
-type ProjectFeatureCollection {
-  points: [Point]
-  linestrings: [Linestring]
-  polygons: [Polygon]
-}
-
-type ModelFeatureCollection {
-  points: [ModelPoint]
-  linestrings: [ModelLinestring]
-  polygons: [ModelPolygon]
+  geometry: Geometry!
+  properties: JSON!
+  type: String!
 }
 
 type Model {
   id: ID!
   name: String!
-  features: ModelFeatureCollection!
+  featureCollection: [Feature]
 }
 
 type Project {
   id: ID!
   name: String!
   models: [ProjectModel]
-  features: ProjectFeatureCollection!
+  featureCollection: [Feature]
 }
 
 type ProjectModel {
   id: ID!
-  model: Model!
-  centerPoint: Coordinates!
+  featureCollection: [Feature!]!
+  centerPoint: Coordinate!
   rotation: Float!
 }
 

@@ -1,19 +1,16 @@
-# from enum import Enum
+from enum import Enum
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from geoalchemy2 import Geography
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-# class GeometryType(str, Enum):
-#     GEOMETRY = "GEOMETRY"
-#     POINT = "POINT"
-#     LINESTRING = "LINESTRING"
-#     POLYGON = "POLYGON"
-#     MULTIPOINT = "MULTIPOINT"
-#     MULTILINESTRING = "MULTILINESTRING"
-#     MULTIPOLYGON = "MULTIPOLYGON"
-#     GEOMETRYCOLLECTION = "GEOMETRYCOLLECTION"
-#     CURVE = "CURVE"
+class GeometryType(str, Enum):
+    POINT = "POINT"
+    MULTIPOINT = "MULTIPOINT"
+    LINESTRING = "LINESTRING"
+    MULTILINESTRING = "MULTILINESTRING"
+    POLYGON = "POLYGON"
+    MULTIPOLYGON = "MULTIPOLYGON"
 
 Base = declarative_base()
 
@@ -37,10 +34,9 @@ class Project(Base):
     __tablename__ = 'project'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"))
-    
-    points = relationship('Point')
-    linestrings = relationship('Linestring')
-    polygons = relationship('Polygon')
+
+    models = relationship('ProjectModel')
+    feature_collection = relationship('Feature')
 
     name = Column(String)
 
@@ -48,17 +44,6 @@ class Project(Base):
         return {
             "id": self.id,
             "name": self.name
-        }
-
-    def features_to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "features": {
-                "points": self.points,
-                "linestrings": self.linestrings,
-                "polygons": self.polygons
-            }
         }
 
 class Model(Base):
@@ -66,9 +51,7 @@ class Model(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"))
 
-    points = relationship('ModelPoint')
-    linestrings = relationship('ModelLinestring')
-    polygons = relationship('ModelPolygon')
+    feature_collection = relationship('Feature')
 
     name = Column(String)
 
@@ -76,85 +59,6 @@ class Model(Base):
         return {
             "id": self.id,
             "name": self.name
-        }
-
-class Point(Base):
-    __tablename__ = 'point'
-    id = Column(Integer, primary_key=True)
-    project_id = Column(Integer, ForeignKey("project.id"))
-
-    geom = Column(Geography(geometry_type='POINT', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
-        }
-
-class Linestring(Base):
-    __tablename__ = 'linestring'
-    id = Column(Integer, primary_key=True)
-    project_id = Column(Integer, ForeignKey("project.id"))
-
-    geom = Column(Geography(geometry_type='LINESTRING', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
-        }
-
-class Polygon(Base):
-    __tablename__ = 'polygon'
-    id = Column(Integer, primary_key=True)
-    project_id = Column(Integer, ForeignKey("project.id"))
-
-    geom = Column(Geography(geometry_type='POLYGON', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
-        }
-
-
-class ModelPoint(Base):
-    __tablename__ = 'modelpoint'
-    id = Column(Integer, primary_key=True)
-    model_id = Column(Integer, ForeignKey("model.id"))
-
-    geom = Column(Geography(geometry_type='POINT', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
-        }
-
-class ModelLinestring(Base):
-    __tablename__ = 'modellinestring'
-    id = Column(Integer, primary_key=True)
-    model_id = Column(Integer, ForeignKey("model.id"))
-
-    geom = Column(Geography(geometry_type='LINESTRING', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
-        }
-
-class ModelPolygon(Base):
-    __tablename__ = 'modelpolygon'
-    id = Column(Integer, primary_key=True)
-    model_id = Column(Integer, ForeignKey("model.id"))
-
-    geom = Column(Geography(geometry_type='POLYGON', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
         }
 
 class ProjectModel(Base):
@@ -163,8 +67,9 @@ class ProjectModel(Base):
     project_id = Column(Integer, ForeignKey("project.id"))
     model_id = Column(Integer, ForeignKey("model.id"))
 
-    lat = Column(Float)
-    lng = Column(Float)
+    feature_collection = relationship('Feature')
+
+    center_point = Column(Geography(geometry_type='POINT', srid=4326))
     rotation = Column(Float)
 
     def to_dict(self):
@@ -172,9 +77,27 @@ class ProjectModel(Base):
             "id": self.id,
             "model_id": self.model_id,
             "project_id": self.project_id,
-            "lat": self.lat,
-            "lng": self.lng,
+            "centerPoint": self.center_point,
             "rotation": self.rotation
         }
 
-    
+class Feature(Base):
+    __tablename__ = 'feature'
+    id = Column(Integer, primary_key=True)
+
+    project_id = Column(Integer, ForeignKey("project.id"))
+    model_id = Column(Integer, ForeignKey("model.id"))
+    projectmodel_id = Column(Integer, ForeignKey("projectmodel.id"))
+
+    properties = Column(String)
+    type = Column(String)
+
+    geometries = relationship('Geom')
+
+class Geom(Base):
+    __tablename__ = 'geom'
+    id = Column(Integer, primary_key=True)
+
+    feature_id = Column(Integer, ForeignKey("feature.id"))
+
+    coordinates = Column(Geography(geometry_type='GEOMETRY', srid=4326))
