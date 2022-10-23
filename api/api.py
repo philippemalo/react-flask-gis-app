@@ -118,6 +118,11 @@ coordinates_scalar.set_serializer(coordinates_serializer)
 query = ObjectType("Query")
 mutation = ObjectType("Mutation")
 
+modelType = ObjectType("Model")
+@modelType.field("featureCollection")
+def resolve_featureCollection(obj, info):
+    return obj["featureCollection"]
+
 query.set_field("isConnected", resolve_isConnected)
 query.set_field("userLogin", resolve_login)
 query.set_field("userLogout", resolve_logout)
@@ -135,6 +140,6 @@ mutation.set_field("deleteProject", resolve_deleteProject)
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
     # type_defs, query, mutation, snake_case_fallback_resolvers
-    type_defs, query, mutation, snake_case_fallback_resolvers, coordinates_scalar
+    type_defs, query, mutation, snake_case_fallback_resolvers, coordinates_scalar, modelType
     # type_defs, query, mutation, snake_case_fallback_resolvers, coordinates_scalar, json_scalar
 )

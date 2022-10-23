@@ -1,3 +1,4 @@
+import json
 import bcrypt
 import jwt
 from models import User, Project, Model
@@ -136,7 +137,8 @@ def resolve_userModels(obj, info, userId):
         for model in result:
             models.append(model.to_dict())
 
-        print(type(models[0]["featureCollection"][0]["geometry"]))
+        print(models[0]["featureCollection"])
+
         payload = {
             "success": True,
             "models": models

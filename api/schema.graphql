@@ -64,7 +64,7 @@ type Feature {
 type Model {
   id: ID!
   name: String!
-  featureCollection: [Feature]
+  featureCollection: [Feature]!
 }
 
 type ProjectModel {
