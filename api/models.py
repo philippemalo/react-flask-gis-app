@@ -71,8 +71,6 @@ class Model(Base):
 
         for i in self.feature_collection:
             features.append(i.to_dict())
-        
-        # print('FEATURES: ', features)
 
         return {
             "id": self.id,
@@ -99,8 +97,7 @@ class ProjectModel(Base):
 
         for i in self.feature_collection:
             features.append(i.to_dict())
-
-        print('RAAAAAAAAAAAAAAAAAAAA: ', features)
+            
         return {
             "id": self.id,
             "featureCollection": features,

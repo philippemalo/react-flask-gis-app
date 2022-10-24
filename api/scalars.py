@@ -1,7 +1,6 @@
 # Validate data format just before sending it to graphql scalar
 def coordinates_serializer(value):
   try:
-    # print('Evaluating coordinates format...', value)
     if not type(value) == list:
       raise Exception('The value is not of type list')
     
@@ -34,7 +33,6 @@ def coordinates_serializer(value):
 # Clean the value before passing it to the serializer
 def coordinates_value_parser(value):
   try:
-    print('VAL: ', value)
     return value
   except Exception as error:
     return error

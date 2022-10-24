@@ -66,13 +66,22 @@ model_to_duplicate = session.query(Model).filter_by(id=modelId_to_duplicate).fir
 # Set center point of copied model and a rotation if required
 newProjectModel = ProjectModel(center_point='POINT(-70 45)', rotation=45.5)
 newProjectModel.project_id = newProject.id
+session.add(newProjectModel)
+session.commit(newProjectModel)
 # Duplicate features
 newFeatures = Feature(type='Feature', properties="{}")
 newFeatures.projectmodel_id = newProjectModel.id
+session.add(newFeatures)
+session.commit()
 print('REEEEEE: ', model_to_duplicate.feature_collection[0])
+createdFeatures = session.query(Feature).filter_by(id=newFeatures.id).first()
 for feature in model_to_duplicate.feature_collection:
     print('FEATUREEE: ', to_shape(feature.geometry.coordinates).wkt)
-    newFeaturesGeom = Geom(coordinates=model_to_duplicate.feature_collection.geometry)
+    newFeaturesGeom = Geom(coordinates=to_shape(feature.geometry.coordinates).wkt)
+    print('BRUH: ', createdFeatures.id)
+    newFeaturesGeom.feature_id = createdFeatures.id
+    session.add(newFeaturesGeom)
+    session.commit()
     
 # session.add(newProjectModel, newFeatures, newFeaturesGeom)
 # session.commit()

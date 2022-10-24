@@ -88,14 +88,12 @@ def graphql_server():
         return jsonify(result), status_code
 
     elif current_resolver == "isConnected":
-        print(json.dumps(result, indent=2))
         return jsonify(result), status_code
 
     elif current_resolver == "userLogout":
         resolver_success = bool(result["data"][current_resolver]["success"])
 
         if resolver_success:
-            # Need to check if cookie already exists. If so, refresh it.
             logged_in_user = result["data"][current_resolver]["user"]
             
             res = jsonify(result)
@@ -110,8 +108,6 @@ def graphql_server():
 
 coordinates_scalar = ScalarType("Coordinate")
 coordinates_scalar.set_serializer(coordinates_serializer)
-# coordinates_scalar.set_value_parser(coordinates_value_parser)
-# coordinates_scalar.set_literal_parser(coordinates_literal_parser)
 
 # json_scalar = ScalarType("JSON", json_serializer, json_value_parser, json_literal_parser)
 
@@ -148,7 +144,6 @@ def resolve_projectModelFeatureCollection(obj, _):
 def resolve_projectModelCenterPoint(obj, _):
     return obj["centerPoint"]
 
-
 query.set_field("isConnected", resolve_isConnected)
 query.set_field("userLogin", resolve_login)
 query.set_field("userLogout", resolve_logout)
@@ -166,5 +161,4 @@ mutation.set_field("deleteProject", resolve_deleteProject)
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
     type_defs, query, mutation, snake_case_fallback_resolvers, coordinates_scalar, userType, modelType, projectType, projectModelType
-    # type_defs, query, mutation, snake_case_fallback_resolvers, coordinates_scalar, json_scalar
 )

@@ -11,7 +11,6 @@ session = Session()
 
 def resolve_isConnected(obj, info):
     try:
-        print('OBJ: ', obj)
         token = request.cookies.get('react-flask-app')
 
         if token is None:
@@ -137,8 +136,6 @@ def resolve_userModels(obj, info, userId):
         for model in result:
             models.append(model.to_dict())
 
-        # print(models[0]["featureCollection"])
-
         payload = {
             "success": True,
             "models": models
@@ -150,7 +147,6 @@ def resolve_userModels(obj, info, userId):
             "errors": [str(error)]
         }
     
-    # print('PAYLOAD: ', payload)
     return payload
 
 def resolve_allModels(obj, info):
@@ -178,42 +174,3 @@ def resolve_allModels(obj, info):
         }
     
     return payload
-
-# def resolve_projectFeatures(obj, info, projectId):
-#     try:
-#         print('bleh')
-#         # result = session.query(Feature.id, Feature.type, functions.ST_AsGeoJSON(Feature.geom).label('geojson')).filter_by(project_id = projectId)
-#         # features = []
-    
-#         # for feature in result:
-#         #     print('feature: ', feature)
-#         #     print('type: ', type(feature.geojson))
-#         #     geojson = json.loads(feature.geojson)
-            
-#         #     print('COOOOOOOORDS: ', geojson['coordinates'])
-#         #     features.append({"id": feature.id, "type": feature.type, "coordinates": geojson['coordinates']})
-
-#         # payload = {
-#         #     "success": True,
-#         #     "features": features
-#         # }
-
-#         # --- graphql return type ---
-#         # type Feature {
-#         #     id: ID!
-#         #     type: GeometryType!
-#         #     geom: [Coordinates!]!
-#         # }
-
-#         # type Coordinates {
-#         #     latitude: Float!
-#         #     longitude: Float!
-#         # }
-
-#     except Exception as error:
-#         payload = {
-#             "success": False,
-#             "errors": [str(error)]
-#         }
-    
-#     return payload
