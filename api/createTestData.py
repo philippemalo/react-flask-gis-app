@@ -1,22 +1,26 @@
+import bcrypt
 from api import engine
-from models import Point, Linestring, Polygon, Project, User, Model, ModelPoint, ModelLinestring, ModelPolygon, ProjectModel
+from models import User, Project, Model, ProjectModel, Feature, Geom
 from sqlalchemy.orm import sessionmaker
-from geoalchemy2 import functions
+from geoalchemy2 import Geography
+from geoalchemy2.shape import to_shape
 
 # create session and bind engine
 Session = sessionmaker(bind=engine)
 session = Session()
 
 # create User object
-toto = User(email='toto@gmail.com', password='toto')
+password = 'toto'
+byte_pwd = password.encode('utf-8')
+hashed_password = bcrypt.hashpw(byte_pwd, bcrypt.gensalt())
+toto = User(email='toto@gmail.com', password=hashed_password.decode('utf-8'))
 # add User object to session
 session.add(toto)
 # commit session changes
 session.commit()
 # query User table and print results
-query1 = session.query(User)
-for i in query1:
-    print(i.to_dict())
+query1 = session.query(User).filter_by(email='toto@gmail.com').first()
+print(query1.to_dict())
 
 # create Project object and assign user foreign key
 newProject = Project(name='My beautiful park')
@@ -28,37 +32,9 @@ query2 = session.query(Project)
 for i in query2:
     print(i.to_dict())
 
-# create Point object and assign project foreign key
-newPoint = Point(geom='POINT(0 0)')
-newPoint.project_id = newProject.id
-# add Point object to session and commit
-session.add(newPoint)
-session.commit()
-# create Linestring object and assign project foreign key
-newLinestring = Linestring(geom='LINESTRING(0 0, 1 1)')
-newLinestring.project_id = newProject.id
-# add Linestring object to session and commit
-session.add(newLinestring)
-session.commit()
-# create Polygon object and assign project foreign key
-newPolygon = Polygon(geom='POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))')
-newPolygon.project_id = newProject.id
-# add Polygon object to session and commit
-session.add(newPolygon)
-session.commit()
-
-query3 = session.query(functions.ST_AsText(Point.geom))
-for i in query3:
-    print(i)
-query4 = session.query(functions.ST_AsText(Linestring.geom))
-for i in query4:
-    print(i)
-query5 = session.query(functions.ST_AsText(Polygon.geom))
-for i in query5:
-    print(i)
-
 # create Model object and assign user foreign key
 newModel = Model(name='Park bench')
+newModel.user_id = toto.id
 # add Model object to session and commit
 session.add(newModel)
 session.commit()
@@ -66,27 +42,47 @@ query6 = session.query(Model)
 for i in query6:
     print(i.to_dict())
 
-# create Point object and assign project foreign key
-newModelPoint = ModelPoint(geom='POINT(3 3)')
-newModelPoint.model_id = newModel.id
-# add Point object to session and commit
-session.add(newModelPoint)
+newModelFeature = Feature(type='Feature', properties="{}")
+newModelFeature.model_id = newModel.id
+session.add(newModelFeature)
 session.commit()
-# create Linestring object and assign project foreign key
-newModelLinestring = ModelLinestring(geom='LINESTRING(1 1, 2 2)')
-newModelLinestring.model_id = newModel.id
-# add Linestring object to session and commit
-session.add(newModelLinestring)
-session.commit()
-# create Polygon object and assign project foreign key
-newModelPolygon = ModelPolygon(geom='POLYGON((0 0, 2 2, 0 4, 0 0))')
-newModelPolygon.model_id = newModel.id
-# add Polygon object to session and commit
-session.add(newModelPolygon)
+query7 = session.query(Feature)
+for i in query7:
+    print(i)
+
+newGeomForFeature1 = Geom(coordinates='POINT(1 1)')
+newGeomForFeature1.feature_id = newModelFeature.id
+session.add(newGeomForFeature1)
 session.commit()
 
-newProjectModelAssociation = ProjectModel(lat=0, lng=0, rotation=0)
-newProjectModelAssociation.project_id = newProject.id
-newProjectModelAssociation.model_id = newModel.id
-session.add(newProjectModelAssociation)
+query8 = session.query(Geom)
+for i in query8:
+    print(i)
+
+# When creating a projectModel, I need to copy an existing model's featureCollection
+# and linking those features to the projectModel
+modelId_to_duplicate = 1
+model_to_duplicate = session.query(Model).filter_by(id=modelId_to_duplicate).first()
+# Set center point of copied model and a rotation if required
+newProjectModel = ProjectModel(center_point='POINT(-70 45)', rotation=45.5)
+newProjectModel.project_id = newProject.id
+session.add(newProjectModel)
+session.commit(newProjectModel)
+# Duplicate features
+newFeatures = Feature(type='Feature', properties="{}")
+newFeatures.projectmodel_id = newProjectModel.id
+session.add(newFeatures)
 session.commit()
+print('REEEEEE: ', model_to_duplicate.feature_collection[0])
+createdFeatures = session.query(Feature).filter_by(id=newFeatures.id).first()
+for feature in model_to_duplicate.feature_collection:
+    print('FEATUREEE: ', to_shape(feature.geometry.coordinates).wkt)
+    newFeaturesGeom = Geom(coordinates=to_shape(feature.geometry.coordinates).wkt)
+    print('BRUH: ', createdFeatures.id)
+    newFeaturesGeom.feature_id = createdFeatures.id
+    session.add(newFeaturesGeom)
+    session.commit()
+    
+# session.add(newProjectModel, newFeatures, newFeaturesGeom)
+# session.commit()
+

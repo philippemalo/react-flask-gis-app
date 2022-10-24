@@ -1,19 +1,17 @@
-# from enum import Enum
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from enum import Enum
+from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, String, Float
 from geoalchemy2 import Geography
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-
-# class GeometryType(str, Enum):
-#     GEOMETRY = "GEOMETRY"
-#     POINT = "POINT"
-#     LINESTRING = "LINESTRING"
-#     POLYGON = "POLYGON"
-#     MULTIPOINT = "MULTIPOINT"
-#     MULTILINESTRING = "MULTILINESTRING"
-#     MULTIPOLYGON = "MULTIPOLYGON"
-#     GEOMETRYCOLLECTION = "GEOMETRYCOLLECTION"
-#     CURVE = "CURVE"
+from shapely import wkb
+from shapely.geometry import mapping
+class GeometryType(str, Enum):
+    POINT = "POINT"
+    MULTIPOINT = "MULTIPOINT"
+    LINESTRING = "LINESTRING"
+    MULTILINESTRING = "MULTILINESTRING"
+    POLYGON = "POLYGON"
+    MULTIPOLYGON = "MULTIPOLYGON"
 
 Base = declarative_base()
 
@@ -37,144 +35,125 @@ class Project(Base):
     __tablename__ = 'project'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"))
-    
-    points = relationship('Point')
-    linestrings = relationship('Linestring')
-    polygons = relationship('Polygon')
+
+    models = relationship('ProjectModel')
+    feature_collection = relationship('Feature')
 
     name = Column(String)
 
     def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name
-        }
+        models = []
+        for i in self.models:
+            models.append(i.to_dict())
 
-    def features_to_dict(self):
+        features = []
+        for i in self.feature_collection:
+            features.append(i.to_dict())
+
         return {
             "id": self.id,
             "name": self.name,
-            "features": {
-                "points": self.points,
-                "linestrings": self.linestrings,
-                "polygons": self.polygons
-            }
+            "models": models,
+            "featureCollection": features
         }
 
 class Model(Base):
     __tablename__ = 'model'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("user.id"))
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
 
-    points = relationship('ModelPoint')
-    linestrings = relationship('ModelLinestring')
-    polygons = relationship('ModelPolygon')
+    feature_collection = relationship('Feature')
 
     name = Column(String)
 
     def to_dict(self):
+        features = []
+
+        for i in self.feature_collection:
+            features.append(i.to_dict())
+
         return {
             "id": self.id,
-            "name": self.name
-        }
-
-class Point(Base):
-    __tablename__ = 'point'
-    id = Column(Integer, primary_key=True)
-    project_id = Column(Integer, ForeignKey("project.id"))
-
-    geom = Column(Geography(geometry_type='POINT', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
-        }
-
-class Linestring(Base):
-    __tablename__ = 'linestring'
-    id = Column(Integer, primary_key=True)
-    project_id = Column(Integer, ForeignKey("project.id"))
-
-    geom = Column(Geography(geometry_type='LINESTRING', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
-        }
-
-class Polygon(Base):
-    __tablename__ = 'polygon'
-    id = Column(Integer, primary_key=True)
-    project_id = Column(Integer, ForeignKey("project.id"))
-
-    geom = Column(Geography(geometry_type='POLYGON', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
-        }
-
-
-class ModelPoint(Base):
-    __tablename__ = 'modelpoint'
-    id = Column(Integer, primary_key=True)
-    model_id = Column(Integer, ForeignKey("model.id"))
-
-    geom = Column(Geography(geometry_type='POINT', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
-        }
-
-class ModelLinestring(Base):
-    __tablename__ = 'modellinestring'
-    id = Column(Integer, primary_key=True)
-    model_id = Column(Integer, ForeignKey("model.id"))
-
-    geom = Column(Geography(geometry_type='LINESTRING', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
-        }
-
-class ModelPolygon(Base):
-    __tablename__ = 'modelpolygon'
-    id = Column(Integer, primary_key=True)
-    model_id = Column(Integer, ForeignKey("model.id"))
-
-    geom = Column(Geography(geometry_type='POLYGON', srid=4326))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "geom": self.geom
+            "name": self.name,
+            "featureCollection": features
         }
 
 class ProjectModel(Base):
     __tablename__ = 'projectmodel'
     id = Column(Integer, primary_key=True)
+    project_id = Column(Integer, ForeignKey("project.id"), nullable=False)
+
+    feature_collection = relationship('Feature')
+
+    center_point = Column(Geography(geometry_type='POINT', srid=4326))
+    rotation = Column(Float)
+
+    def wkb_to_geojson(self):
+        return mapping(wkb.loads(str(self.center_point), True))
+
+    def to_dict(self):
+        geom = self.wkb_to_geojson()
+        features = []
+
+        for i in self.feature_collection:
+            features.append(i.to_dict())
+            
+        return {
+            "id": self.id,
+            "featureCollection": features,
+            "centerPoint": list(geom["coordinates"]),
+            "rotation": self.rotation
+        }
+
+class Feature(Base):
+    __tablename__ = 'feature'
+    id = Column(Integer, primary_key=True)
+
     project_id = Column(Integer, ForeignKey("project.id"))
     model_id = Column(Integer, ForeignKey("model.id"))
+    projectmodel_id = Column(Integer, ForeignKey("projectmodel.id"))
+    
+    # There is probably a better check constraint to make sure that atleast one foreign key is set
+    __table_args__ = (
+        CheckConstraint('project_id + model_id + projectmodel_id > 0'),
+    )
 
-    lat = Column(Float)
-    lng = Column(Float)
-    rotation = Column(Float)
+    properties = Column(String)
+    type = Column(String)
+
+    geometry = relationship('Geom', back_populates='feature', uselist=False)
 
     def to_dict(self):
         return {
             "id": self.id,
-            "model_id": self.model_id,
-            "project_id": self.project_id,
-            "lat": self.lat,
-            "lng": self.lng,
-            "rotation": self.rotation
+            "geometry": self.geometry.to_dict(),
+            "properties": self.properties,
+            "type": self.type
         }
 
-    
+class Geom(Base):
+    __tablename__ = 'geom'
+    id = Column(Integer, primary_key=True)
+
+    feature_id = Column(Integer, ForeignKey("feature.id"), nullable=False)
+
+    coordinates = Column(Geography(geometry_type='GEOMETRY', srid=4326))
+
+    feature = relationship('Feature', back_populates='geometry')
+
+    def wkb_to_geojson(self):
+        return mapping(wkb.loads(str(self.coordinates), True))
+
+    def to_dict(self):
+        geom = self.wkb_to_geojson()
+
+        if geom["type"] == 'Point':
+            geom["coordinates"] = [list(geom["coordinates"])]
+        else:
+            geom["coordinates"] = list(geom["coordinates"])
+
+        return {
+            "id": self.id,
+            "type": geom["type"].upper(),
+            "coordinates": geom["coordinates"]
+        }
