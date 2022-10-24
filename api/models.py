@@ -42,9 +42,19 @@ class Project(Base):
     name = Column(String)
 
     def to_dict(self):
+        models = []
+        for i in self.models:
+            models.append(i.to_dict())
+
+        features = []
+        for i in self.feature_collection:
+            features.append(i.to_dict())
+
         return {
             "id": self.id,
-            "name": self.name
+            "name": self.name,
+            "models": models,
+            "featureCollection": features
         }
 
 class Model(Base):
@@ -73,20 +83,28 @@ class Model(Base):
 class ProjectModel(Base):
     __tablename__ = 'projectmodel'
     id = Column(Integer, primary_key=True)
-    project_id = Column(Integer, ForeignKey("project.id"))
-    model_id = Column(Integer, ForeignKey("model.id"))
+    project_id = Column(Integer, ForeignKey("project.id"), nullable=False)
 
     feature_collection = relationship('Feature')
 
     center_point = Column(Geography(geometry_type='POINT', srid=4326))
     rotation = Column(Float)
 
+    def wkb_to_geojson(self):
+        return mapping(wkb.loads(str(self.center_point), True))
+
     def to_dict(self):
+        geom = self.wkb_to_geojson()
+        features = []
+
+        for i in self.feature_collection:
+            features.append(i.to_dict())
+
+        print('RAAAAAAAAAAAAAAAAAAAA: ', features)
         return {
             "id": self.id,
-            "model_id": self.model_id,
-            "project_id": self.project_id,
-            "centerPoint": self.center_point,
+            "featureCollection": features,
+            "centerPoint": list(geom["coordinates"]),
             "rotation": self.rotation
         }
 

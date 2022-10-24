@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 
-from ariadne import load_schema_from_path, make_executable_schema, graphql_sync, snake_case_fallback_resolvers, ObjectType, ScalarType
+from ariadne import load_schema_from_path, make_executable_schema, graphql_sync, snake_case_fallback_resolvers, ObjectType, ScalarType, QueryType, MutationType
 from ariadne.constants import PLAYGROUND_HTML
 from scalars import coordinates_serializer, coordinates_value_parser, coordinates_literal_parser, json_serializer, json_value_parser, json_literal_parser
 from queries import resolve_users, resolve_userProjects, resolve_login, resolve_isConnected, resolve_logout, resolve_userModels, resolve_allModels
@@ -115,13 +115,39 @@ coordinates_scalar.set_serializer(coordinates_serializer)
 
 # json_scalar = ScalarType("JSON", json_serializer, json_value_parser, json_literal_parser)
 
-query = ObjectType("Query")
-mutation = ObjectType("Mutation")
+
+query = QueryType()
+mutation = MutationType()
+
+userType = ObjectType("User")
+@userType.field("models")
+def resolver_userModels(obj, _):
+    return obj["models"]
+@userType.field("projects")
+def resolver_userProjects(obj, _):
+    return obj["projects"]
 
 modelType = ObjectType("Model")
 @modelType.field("featureCollection")
-def resolve_featureCollection(obj, info):
+def resolve_modelFeatureCollection(obj, _):
     return obj["featureCollection"]
+
+projectType = ObjectType("Project")
+@projectType.field("featureCollection")
+def resolve_projectFeatureCollection(obj, _):
+    return obj["featureCollection"]
+@projectType.field("models")
+def resolve_projectModels(obj, _):
+    return obj["models"]
+
+projectModelType = ObjectType("ProjectModel")
+@projectModelType.field("featureCollection")
+def resolve_projectModelFeatureCollection(obj, _):
+    return obj["featureCollection"]
+@projectModelType.field("centerPoint")
+def resolve_projectModelCenterPoint(obj, _):
+    return obj["centerPoint"]
+
 
 query.set_field("isConnected", resolve_isConnected)
 query.set_field("userLogin", resolve_login)
@@ -139,7 +165,6 @@ mutation.set_field("deleteProject", resolve_deleteProject)
 
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
-    # type_defs, query, mutation, snake_case_fallback_resolvers
-    type_defs, query, mutation, snake_case_fallback_resolvers, coordinates_scalar, modelType
+    type_defs, query, mutation, snake_case_fallback_resolvers, coordinates_scalar, userType, modelType, projectType, projectModelType
     # type_defs, query, mutation, snake_case_fallback_resolvers, coordinates_scalar, json_scalar
 )

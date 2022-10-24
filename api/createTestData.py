@@ -2,6 +2,8 @@ import bcrypt
 from api import engine
 from models import User, Project, Model, ProjectModel, Feature, Geom
 from sqlalchemy.orm import sessionmaker
+from geoalchemy2 import Geography
+from geoalchemy2.shape import to_shape
 
 # create session and bind engine
 Session = sessionmaker(bind=engine)
@@ -56,3 +58,22 @@ session.commit()
 query8 = session.query(Geom)
 for i in query8:
     print(i)
+
+# When creating a projectModel, I need to copy an existing model's featureCollection
+# and linking those features to the projectModel
+modelId_to_duplicate = 1
+model_to_duplicate = session.query(Model).filter_by(id=modelId_to_duplicate).first()
+# Set center point of copied model and a rotation if required
+newProjectModel = ProjectModel(center_point='POINT(-70 45)', rotation=45.5)
+newProjectModel.project_id = newProject.id
+# Duplicate features
+newFeatures = Feature(type='Feature', properties="{}")
+newFeatures.projectmodel_id = newProjectModel.id
+print('REEEEEE: ', model_to_duplicate.feature_collection[0])
+for feature in model_to_duplicate.feature_collection:
+    print('FEATUREEE: ', to_shape(feature.geometry.coordinates).wkt)
+    newFeaturesGeom = Geom(coordinates=model_to_duplicate.feature_collection.geometry)
+    
+# session.add(newProjectModel, newFeatures, newFeaturesGeom)
+# session.commit()
+

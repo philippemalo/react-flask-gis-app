@@ -1,4 +1,3 @@
-import json
 import bcrypt
 import jwt
 from models import User, Project, Model
@@ -12,6 +11,7 @@ session = Session()
 
 def resolve_isConnected(obj, info):
     try:
+        print('OBJ: ', obj)
         token = request.cookies.get('react-flask-app')
 
         if token is None:
@@ -137,7 +137,7 @@ def resolve_userModels(obj, info, userId):
         for model in result:
             models.append(model.to_dict())
 
-        print(models[0]["featureCollection"])
+        # print(models[0]["featureCollection"])
 
         payload = {
             "success": True,
@@ -150,7 +150,7 @@ def resolve_userModels(obj, info, userId):
             "errors": [str(error)]
         }
     
-    print('PAYLOAD: ', payload)
+    # print('PAYLOAD: ', payload)
     return payload
 
 def resolve_allModels(obj, info):
