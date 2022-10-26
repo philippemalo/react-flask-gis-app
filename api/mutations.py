@@ -1,9 +1,12 @@
 from flask import request
 import jwt
-from models import User, Model, Project
+from models import User, Model, Project, Feature, Geom
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import bcrypt
+import json
+import geojson
+from shapely.geometry import shape
 
 engine = create_engine("postgresql://user:pass@localhost:5432/db", echo=True)
 Session = sessionmaker(bind=engine)
@@ -144,6 +147,48 @@ def resolve_deleteProject(obj, info, projectId, userId):
 
         payload = {
             "success": True
+        }
+
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+
+    return payload
+
+def resolve_createModelFeature(obj, info, modelId, geometry):
+    try:
+        token = request.cookies.get('react-flask-app')
+        if token is None:
+            raise Exception('User is not logged in')
+        jwt.decode(token, "secret", algorithms=["HS256"])
+
+        newFeature = Feature(type='Feature', properties="{}")
+        newFeature.model_id = modelId
+        session.add(newFeature)
+        session.commit()
+
+        geom = {
+            "coordinates": geometry["coordinates"],
+            "type": geometry["type"]
+        }
+
+        geom_shapely = shape(geom)
+        
+        print('WKTTTTTTTTTTTTTTT: ', geom_shapely.wkt)
+        newGeom = Geom(coordinates=geom_shapely.wkt)
+        newGeom.feature_id = newFeature.id
+
+        session.add(newGeom)
+        session.commit()
+
+        updatedModel = session.query(Model).filter_by(id=modelId).first()
+        print('updatedModel: ', updatedModel)
+
+        payload = {
+            "success": True,
+            "model": updatedModel.to_dict()
         }
 
     except Exception as error:

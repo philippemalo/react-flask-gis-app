@@ -124,9 +124,12 @@ class Feature(Base):
     geometry = relationship('Geom', back_populates='feature', uselist=False)
 
     def to_dict(self):
+        if not self.geometry:
+            raise Exception('The feature with id: '+str(self.id)+' is not tied to a geom... it should be deleted')
+        geometry = self.geometry.to_dict()
         return {
             "id": self.id,
-            "geometry": self.geometry.to_dict(),
+            "geometry": geometry,
             "properties": self.properties,
             "type": self.type
         }
@@ -146,14 +149,24 @@ class Geom(Base):
 
     def to_dict(self):
         geom = self.wkb_to_geojson()
-
-        if geom["type"] == 'Point':
+        print('GEOM: ', geom, 'TYPE OF GEOM: ', type(geom["coordinates"]))
+        
+        if geom["type"].upper() == 'POINT':
             geom["coordinates"] = [list(geom["coordinates"])]
-        else:
-            geom["coordinates"] = list(geom["coordinates"])
+            geom["polygonHole"] = None
+        elif geom["type"].upper() == 'LINESTRING':
+            geom["coordinates"] = [[*row] for row in geom["coordinates"]]
+            geom["polygonHole"] = None
+        elif geom["type"].upper() == 'POLYGON':
+            if len(geom["coordinates"]) == 2:
+                geom["polygonHole"] = [[*row] for row in geom["coordinates"]][1]
+            geom["coordinates"] = [[*row] for row in geom["coordinates"]][0]
 
+
+        geomType = geom["type"].upper()
         return {
             "id": self.id,
-            "type": geom["type"].upper(),
-            "coordinates": geom["coordinates"]
+            "type": geomType,
+            "coordinates": geom["coordinates"],
+            "polygonHole": geom["polygonHole"]
         }

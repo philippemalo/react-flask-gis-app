@@ -67,7 +67,7 @@ model_to_duplicate = session.query(Model).filter_by(id=modelId_to_duplicate).fir
 newProjectModel = ProjectModel(center_point='POINT(-70 45)', rotation=45.5)
 newProjectModel.project_id = newProject.id
 session.add(newProjectModel)
-session.commit(newProjectModel)
+session.commit()
 # Duplicate features
 newFeatures = Feature(type='Feature', properties="{}")
 newFeatures.projectmodel_id = newProjectModel.id

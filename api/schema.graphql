@@ -24,6 +24,10 @@ type Mutation {
   createProject(projectName: String!, userId: ID!): CreateProjectResult!
   deleteModel(modelId: ID!, userId: ID!): DeletetionResult!
   deleteProject(projectId: ID!, userId: ID!): DeletetionResult!
+  createModelFeature(
+    modelId: ID!
+    geometry: GeometryInput!
+  ): CreateModelFeatureResult!
 }
 
 """
@@ -52,6 +56,7 @@ type Geometry {
   id: ID!
   type: GeometryType!
   coordinates: [Coordinate!]!
+  polygonHole: [Coordinate]
 }
 
 type Feature {
@@ -79,6 +84,15 @@ type Project {
   name: String!
   models: [ProjectModel]!
   featureCollection: [Feature]
+}
+
+"""
+Inputs
+"""
+input GeometryInput {
+  type: String!
+  coordinates: [Coordinate!]!
+  polygonHole: [Coordinate]
 }
 
 """
@@ -132,4 +146,10 @@ type CreateProjectResult {
   success: Boolean!
   errors: [String]
   project: Project
+}
+
+type CreateModelFeatureResult {
+  success: Boolean!
+  errors: [String]
+  model: Model
 }

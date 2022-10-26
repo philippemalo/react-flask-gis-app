@@ -135,7 +135,7 @@ def resolve_userModels(obj, info, userId):
 
         for model in result:
             models.append(model.to_dict())
-
+            
         payload = {
             "success": True,
             "models": models

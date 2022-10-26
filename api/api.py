@@ -12,7 +12,7 @@ from ariadne import load_schema_from_path, make_executable_schema, graphql_sync,
 from ariadne.constants import PLAYGROUND_HTML
 from scalars import coordinates_serializer, coordinates_value_parser, coordinates_literal_parser, json_serializer, json_value_parser, json_literal_parser
 from queries import resolve_users, resolve_userProjects, resolve_login, resolve_isConnected, resolve_logout, resolve_userModels, resolve_allModels
-from mutations import resolve_createUser, resolve_createModel, resolve_createProject, resolve_deleteModel, resolve_deleteProject
+from mutations import resolve_createUser, resolve_createModel, resolve_createProject, resolve_deleteModel, resolve_deleteProject, resolve_createModelFeature
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, origins="http://localhost:3000")
@@ -111,7 +111,6 @@ coordinates_scalar.set_serializer(coordinates_serializer)
 
 # json_scalar = ScalarType("JSON", json_serializer, json_value_parser, json_literal_parser)
 
-
 query = QueryType()
 mutation = MutationType()
 
@@ -157,6 +156,7 @@ mutation.set_field("createModel", resolve_createModel)
 mutation.set_field("createProject", resolve_createProject)
 mutation.set_field("deleteModel", resolve_deleteModel)
 mutation.set_field("deleteProject", resolve_deleteProject)
+mutation.set_field("createModelFeature", resolve_createModelFeature)
 
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
