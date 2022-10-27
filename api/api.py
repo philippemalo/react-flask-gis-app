@@ -1,4 +1,3 @@
-import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import jwt
@@ -10,7 +9,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 from ariadne import load_schema_from_path, make_executable_schema, graphql_sync, snake_case_fallback_resolvers, ObjectType, ScalarType, QueryType, MutationType
 from ariadne.constants import PLAYGROUND_HTML
-from scalars import coordinates_serializer, coordinates_value_parser, coordinates_literal_parser, json_serializer, json_value_parser, json_literal_parser
+from scalars import coordinates_serializer
 from queries import resolve_users, resolve_userProjects, resolve_login, resolve_isConnected, resolve_logout, resolve_userModels, resolve_allModels
 from mutations import resolve_createUser, resolve_createModel, resolve_createProject, resolve_deleteModel, resolve_deleteProject, resolve_createModelFeature
 
@@ -106,7 +105,7 @@ def graphql_server():
     else:
         return jsonify(result), status_code
 
-coordinates_scalar = ScalarType("Coordinate")
+coordinates_scalar = ScalarType("Coordinates")
 coordinates_scalar.set_serializer(coordinates_serializer)
 
 # json_scalar = ScalarType("JSON", json_serializer, json_value_parser, json_literal_parser)

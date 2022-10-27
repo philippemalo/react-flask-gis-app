@@ -4,7 +4,7 @@ from geoalchemy2 import Geography
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from shapely import wkb
-from shapely.geometry import mapping
+from shapely.geometry import mapping, shape
 class GeometryType(str, Enum):
     POINT = "POINT"
     MULTIPOINT = "MULTIPOINT"
@@ -89,7 +89,9 @@ class ProjectModel(Base):
     rotation = Column(Float)
 
     def wkb_to_geojson(self):
-        return mapping(wkb.loads(str(self.center_point), True))
+        dataShape = shape(wkb.loads(str(self.center_point), True))
+        geojson = mapping(dataShape)
+        return geojson
 
     def to_dict(self):
         geom = self.wkb_to_geojson()
@@ -101,7 +103,7 @@ class ProjectModel(Base):
         return {
             "id": self.id,
             "featureCollection": features,
-            "centerPoint": list(geom["coordinates"]),
+            "centerPoint": geom["coordinates"],
             "rotation": self.rotation
         }
 
@@ -145,28 +147,15 @@ class Geom(Base):
     feature = relationship('Feature', back_populates='geometry')
 
     def wkb_to_geojson(self):
-        return mapping(wkb.loads(str(self.coordinates), True))
+        dataShape = shape(wkb.loads(str(self.coordinates), True))
+        geojson = mapping(dataShape)
+        return geojson
 
     def to_dict(self):
         geom = self.wkb_to_geojson()
-        print('GEOM: ', geom, 'TYPE OF GEOM: ', type(geom["coordinates"]))
-        
-        if geom["type"].upper() == 'POINT':
-            geom["coordinates"] = [list(geom["coordinates"])]
-            geom["polygonHole"] = None
-        elif geom["type"].upper() == 'LINESTRING':
-            geom["coordinates"] = [[*row] for row in geom["coordinates"]]
-            geom["polygonHole"] = None
-        elif geom["type"].upper() == 'POLYGON':
-            if len(geom["coordinates"]) == 2:
-                geom["polygonHole"] = [[*row] for row in geom["coordinates"]][1]
-            geom["coordinates"] = [[*row] for row in geom["coordinates"]][0]
-
-
         geomType = geom["type"].upper()
         return {
             "id": self.id,
             "type": geomType,
-            "coordinates": geom["coordinates"],
-            "polygonHole": geom["polygonHole"]
+            "coordinates": geom["coordinates"]
         }

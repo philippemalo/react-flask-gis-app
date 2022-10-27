@@ -4,8 +4,6 @@ from models import User, Model, Project, Feature, Geom
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import bcrypt
-import json
-import geojson
 from shapely.geometry import shape
 
 engine = create_engine("postgresql://user:pass@localhost:5432/db", echo=True)
@@ -168,27 +166,26 @@ def resolve_createModelFeature(obj, info, modelId, geometry):
         newFeature.model_id = modelId
         session.add(newFeature)
         session.commit()
+        session.refresh(newFeature)
 
-        geom = {
-            "coordinates": geometry["coordinates"],
-            "type": geometry["type"]
-        }
+        try:
+            geom_shapely = shape(geometry)
+        except Exception as error:
+            session.delete(newFeature)
+            session.commit()
+            raise Exception("The geometry is not valid")
 
-        geom_shapely = shape(geom)
-        
-        print('WKTTTTTTTTTTTTTTT: ', geom_shapely.wkt)
         newGeom = Geom(coordinates=geom_shapely.wkt)
         newGeom.feature_id = newFeature.id
-
         session.add(newGeom)
         session.commit()
 
         updatedModel = session.query(Model).filter_by(id=modelId).first()
-        print('updatedModel: ', updatedModel)
+        model = updatedModel.to_dict()
 
         payload = {
             "success": True,
-            "model": updatedModel.to_dict()
+            "model": model
         }
 
     except Exception as error:

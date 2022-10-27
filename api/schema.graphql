@@ -6,7 +6,7 @@ schema {
   mutation: Mutation
 }
 
-scalar Coordinate
+scalar Coordinates
 
 type Query {
   users: UsersResult!
@@ -55,8 +55,7 @@ type User {
 type Geometry {
   id: ID!
   type: GeometryType!
-  coordinates: [Coordinate!]!
-  polygonHole: [Coordinate]
+  coordinates: Coordinates!
 }
 
 type Feature {
@@ -75,7 +74,7 @@ type Model {
 type ProjectModel {
   id: ID!
   featureCollection: [Feature]!
-  centerPoint: Coordinate!
+  centerPoint: Coordinates!
   rotation: Float!
 }
 
@@ -91,8 +90,7 @@ Inputs
 """
 input GeometryInput {
   type: String!
-  coordinates: [Coordinate!]!
-  polygonHole: [Coordinate]
+  coordinates: Coordinates!
 }
 
 """
