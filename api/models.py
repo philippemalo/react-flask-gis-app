@@ -1,17 +1,9 @@
-from enum import Enum
 from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, String, Float
 from geoalchemy2 import Geography
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from shapely import wkb
 from shapely.geometry import mapping, shape
-class GeometryType(str, Enum):
-    POINT = "POINT"
-    MULTIPOINT = "MULTIPOINT"
-    LINESTRING = "LINESTRING"
-    MULTILINESTRING = "MULTILINESTRING"
-    POLYGON = "POLYGON"
-    MULTIPOLYGON = "MULTIPOLYGON"
 
 Base = declarative_base()
 
@@ -153,7 +145,7 @@ class Geom(Base):
 
     def to_dict(self):
         geom = self.wkb_to_geojson()
-        geomType = geom["type"].upper()
+        geomType = geom["type"]
         return {
             "id": self.id,
             "type": geomType,

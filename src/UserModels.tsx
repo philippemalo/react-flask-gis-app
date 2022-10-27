@@ -16,7 +16,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { userModelsQueryDocument } from "./graphql-types/queries";
 import { createModelMutationDocument } from "./graphql-types/mutations";
 
-export const UserModels = () => {
+const UserModels = () => {
   const [showCreateModelModal, setShowCreateModelModal] = useState(false);
   const [newModelName, setNewModelName] = useState("");
 
@@ -52,6 +52,10 @@ export const UserModels = () => {
 
   const handleCloseModal = () => {
     setShowCreateModelModal(false);
+  };
+
+  const handleModelSelect = (projectId: string | undefined) => {
+    console.log(`Access model ${projectId}`);
   };
 
   return (
@@ -128,6 +132,7 @@ export const UserModels = () => {
                     key={model?.id}
                     sx={{ width: 250, height: 200 }}
                     style={{ cursor: "pointer" }}
+                    onClick={() => handleModelSelect(model?.id)}
                   >
                     <CardMedia
                       component="img"
@@ -150,3 +155,5 @@ export const UserModels = () => {
     </UserContext.Consumer>
   );
 };
+
+export default UserModels;

@@ -5,7 +5,7 @@ import { UserContext } from "./App";
 import { userLoginQueryDocument } from "./graphql-types/queries";
 import { LoginContainer } from "./styles/LoginContainer.css";
 
-export const Login = () => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -55,3 +55,5 @@ export const Login = () => {
     </UserContext.Consumer>
   );
 };
+
+export default Login;

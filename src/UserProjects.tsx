@@ -16,7 +16,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { userProjectsQueryDocument } from "./graphql-types/queries";
 import { createProjectMutationDocument } from "./graphql-types/mutations";
 
-export const UserProjects = () => {
+const UserProjects = () => {
   const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
 
@@ -52,6 +52,10 @@ export const UserProjects = () => {
 
   const handleCloseModal = () => {
     setShowCreateProjectModal(false);
+  };
+
+  const handleProjectSelect = (projectId: string | undefined) => {
+    console.log(`Access project ${projectId}`);
   };
 
   return (
@@ -128,6 +132,7 @@ export const UserProjects = () => {
                     key={project?.id}
                     sx={{ width: 250, height: 200 }}
                     style={{ cursor: "pointer" }}
+                    onClick={() => handleProjectSelect(project?.id)}
                   >
                     <CardMedia
                       component="img"
@@ -150,3 +155,5 @@ export const UserProjects = () => {
     </UserContext.Consumer>
   );
 };
+
+export default UserProjects;

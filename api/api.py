@@ -10,7 +10,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from ariadne import load_schema_from_path, make_executable_schema, graphql_sync, snake_case_fallback_resolvers, ObjectType, ScalarType, QueryType, MutationType
 from ariadne.constants import PLAYGROUND_HTML
 from scalars import coordinates_serializer
-from queries import resolve_users, resolve_userProjects, resolve_login, resolve_isConnected, resolve_logout, resolve_userModels, resolve_allModels
+from queries import resolve_users, resolve_userProjects, resolve_login, resolve_isConnected, resolve_logout, resolve_userModels, resolve_allModels, resolve_project
 from mutations import resolve_createUser, resolve_createModel, resolve_createProject, resolve_deleteModel, resolve_deleteProject, resolve_createModelFeature
 
 app = Flask(__name__)
@@ -149,6 +149,7 @@ query.set_field("users", resolve_users)
 query.set_field("userProjects", resolve_userProjects)
 query.set_field("userModels", resolve_userModels)
 query.set_field("allModels", resolve_allModels)
+query.set_field("project", resolve_project)
 
 mutation.set_field("createUser", resolve_createUser)
 mutation.set_field("createModel", resolve_createModel)

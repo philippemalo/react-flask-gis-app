@@ -13,7 +13,7 @@ const validateEmail = (email: string) => {
     );
 };
 
-export const Register = () => {
+const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showAlert, setShowAlert] = useState(false);
@@ -90,3 +90,5 @@ export const Register = () => {
     </UserContext.Consumer>
   );
 };
+
+export default Register;

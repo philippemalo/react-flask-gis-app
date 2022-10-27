@@ -12,12 +12,14 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  Coordinates: any;
 };
 
-export type Coordinates = {
-  __typename?: 'Coordinates';
-  latitude: Scalars['Float'];
-  longitude: Scalars['Float'];
+export type CreateModelFeatureResult = {
+  __typename?: 'CreateModelFeatureResult';
+  errors?: Maybe<Array<Maybe<Scalars['String']>>>;
+  model?: Maybe<Model>;
+  success: Scalars['Boolean'];
 };
 
 export type CreateModelResult = {
@@ -48,60 +50,49 @@ export type DeletetionResult = {
   success: Scalars['Boolean'];
 };
 
+export type Feature = {
+  __typename?: 'Feature';
+  geometry: Geometry;
+  id: Scalars['ID'];
+  properties: Scalars['String'];
+  type: Scalars['String'];
+};
+
+export type Geometry = {
+  __typename?: 'Geometry';
+  coordinates: Scalars['Coordinates'];
+  id: Scalars['ID'];
+  type: GeometryType;
+};
+
+/** Inputs */
+export type GeometryInput = {
+  coordinates: Scalars['Coordinates'];
+  type: Scalars['String'];
+};
+
 /** Enums */
 export enum GeometryType {
-  Curve = 'CURVE',
-  Geometry = 'GEOMETRY',
-  Geometrycollection = 'GEOMETRYCOLLECTION',
-  Linestring = 'LINESTRING',
-  Multilinestring = 'MULTILINESTRING',
-  Multipoint = 'MULTIPOINT',
-  Multipolygon = 'MULTIPOLYGON',
-  Point = 'POINT',
-  Polygon = 'POLYGON'
+  GeometryCollection = 'GeometryCollection',
+  LineString = 'LineString',
+  MultiLineString = 'MultiLineString',
+  MultiPoint = 'MultiPoint',
+  MultiPolygon = 'MultiPolygon',
+  Point = 'Point',
+  Polygon = 'Polygon'
 }
-
-export type Linestring = {
-  __typename?: 'Linestring';
-  geom: Array<Coordinates>;
-  id: Scalars['ID'];
-};
 
 export type Model = {
   __typename?: 'Model';
-  features: ModelFeatureCollection;
+  featureCollection: Array<Maybe<Feature>>;
   id: Scalars['ID'];
   name: Scalars['String'];
-};
-
-export type ModelFeatureCollection = {
-  __typename?: 'ModelFeatureCollection';
-  linestrings?: Maybe<Array<Maybe<ModelLinestring>>>;
-  points?: Maybe<Array<Maybe<ModelPoint>>>;
-  polygons?: Maybe<Array<Maybe<ModelPolygon>>>;
-};
-
-export type ModelLinestring = {
-  __typename?: 'ModelLinestring';
-  geom: Array<Coordinates>;
-  id: Scalars['ID'];
-};
-
-export type ModelPoint = {
-  __typename?: 'ModelPoint';
-  geom: Coordinates;
-  id: Scalars['ID'];
-};
-
-export type ModelPolygon = {
-  __typename?: 'ModelPolygon';
-  geom: Array<Array<Coordinates>>;
-  id: Scalars['ID'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   createModel: CreateModelResult;
+  createModelFeature: CreateModelFeatureResult;
   createProject: CreateProjectResult;
   createUser: CreateUserResult;
   deleteModel: DeletetionResult;
@@ -112,6 +103,12 @@ export type Mutation = {
 export type MutationCreateModelArgs = {
   modelName: Scalars['String'];
   userId: Scalars['ID'];
+};
+
+
+export type MutationCreateModelFeatureArgs = {
+  geometry: GeometryInput;
+  modelId: Scalars['ID'];
 };
 
 
@@ -138,50 +135,44 @@ export type MutationDeleteProjectArgs = {
   userId: Scalars['ID'];
 };
 
-export type Point = {
-  __typename?: 'Point';
-  geom: Coordinates;
-  id: Scalars['ID'];
-};
-
-export type Polygon = {
-  __typename?: 'Polygon';
-  geom: Array<Array<Coordinates>>;
-  id: Scalars['ID'];
-};
-
 export type Project = {
   __typename?: 'Project';
-  features: ProjectFeatureCollection;
+  featureCollection?: Maybe<Array<Maybe<Feature>>>;
   id: Scalars['ID'];
-  models?: Maybe<Array<Maybe<ProjectModel>>>;
+  models: Array<Maybe<ProjectModel>>;
   name: Scalars['String'];
-};
-
-export type ProjectFeatureCollection = {
-  __typename?: 'ProjectFeatureCollection';
-  linestrings?: Maybe<Array<Maybe<Linestring>>>;
-  points?: Maybe<Array<Maybe<Point>>>;
-  polygons?: Maybe<Array<Maybe<Polygon>>>;
 };
 
 export type ProjectModel = {
   __typename?: 'ProjectModel';
-  centerPoint: Coordinates;
+  centerPoint: Scalars['Coordinates'];
+  featureCollection: Array<Maybe<Feature>>;
   id: Scalars['ID'];
-  model: Model;
   rotation: Scalars['Float'];
+};
+
+export type ProjectResult = {
+  __typename?: 'ProjectResult';
+  errors?: Maybe<Array<Maybe<Scalars['String']>>>;
+  project?: Maybe<Project>;
+  success: Scalars['Boolean'];
 };
 
 export type Query = {
   __typename?: 'Query';
   allModels?: Maybe<UserModelsResult>;
   isConnected?: Maybe<UserLoginResult>;
+  project?: Maybe<ProjectResult>;
   userLogin?: Maybe<UserLoginResult>;
   userLogout?: Maybe<UserLoginResult>;
   userModels?: Maybe<UserModelsResult>;
   userProjects: UserProjectsResult;
   users: UsersResult;
+};
+
+
+export type QueryProjectArgs = {
+  projectId: Scalars['ID'];
 };
 
 
@@ -294,6 +285,13 @@ export type AllModelsQueryDocumentQueryVariables = Exact<{ [key: string]: never;
 
 export type AllModelsQueryDocumentQuery = { __typename?: 'Query', allModels?: { __typename?: 'UserModelsResult', success: boolean, errors?: Array<string | null> | null, models?: Array<{ __typename?: 'Model', id: string, name: string } | null> | null } | null };
 
+export type ProjectQueryDocumentQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+}>;
+
+
+export type ProjectQueryDocumentQuery = { __typename?: 'Query', project?: { __typename?: 'ProjectResult', success: boolean, errors?: Array<string | null> | null, project?: { __typename?: 'Project', id: string, name: string, models: Array<{ __typename?: 'ProjectModel', id: string, centerPoint: any, rotation: number, featureCollection: Array<{ __typename?: 'Feature', id: string, geometry: { __typename?: 'Geometry', id: string, type: GeometryType, coordinates: any } } | null> } | null>, featureCollection?: Array<{ __typename?: 'Feature', id: string, type: string, properties: string, geometry: { __typename?: 'Geometry', id: string, type: GeometryType, coordinates: any } } | null> | null } | null } | null };
+
 
 export const CreateUserMutationDocumentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createUserMutationDocument"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"email"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"email"},"value":{"kind":"Variable","name":{"kind":"Name","value":"email"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]}}]} as unknown as DocumentNode<CreateUserMutationDocumentMutation, CreateUserMutationDocumentMutationVariables>;
 export const CreateProjectMutationDocumentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createProjectMutationDocument"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createProject"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"projectName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectName"}}},{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<CreateProjectMutationDocumentMutation, CreateProjectMutationDocumentMutationVariables>;
@@ -303,3 +301,4 @@ export const UserLoginQueryDocumentDocument = {"kind":"Document","definitions":[
 export const UserProjectsQueryDocumentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"userProjectsQueryDocument"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userProjects"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}},{"kind":"Field","name":{"kind":"Name","value":"projects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<UserProjectsQueryDocumentQuery, UserProjectsQueryDocumentQueryVariables>;
 export const UserModelsQueryDocumentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"userModelsQueryDocument"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userModels"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}},{"kind":"Field","name":{"kind":"Name","value":"models"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<UserModelsQueryDocumentQuery, UserModelsQueryDocumentQueryVariables>;
 export const AllModelsQueryDocumentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"allModelsQueryDocument"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allModels"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}},{"kind":"Field","name":{"kind":"Name","value":"models"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<AllModelsQueryDocumentQuery, AllModelsQueryDocumentQueryVariables>;
+export const ProjectQueryDocumentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"projectQueryDocument"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"project"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"models"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"featureCollection"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"geometry"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"coordinates"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"centerPoint"}},{"kind":"Field","name":{"kind":"Name","value":"rotation"}}]}},{"kind":"Field","name":{"kind":"Name","value":"featureCollection"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"geometry"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"coordinates"}}]}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"properties"}}]}}]}}]}}]}}]} as unknown as DocumentNode<ProjectQueryDocumentQuery, ProjectQueryDocumentQueryVariables>;

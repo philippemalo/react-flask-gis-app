@@ -1,8 +1,6 @@
 import React, { createContext, useState } from "react";
-import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Home } from "./Home";
-import { Login } from "./Login";
-import Map from "./Map";
 import { Navbar } from "./Navbar";
 import { AppContainer } from "./styles/AppContainer.css";
 import {
@@ -13,13 +11,9 @@ import {
 } from "@apollo/client";
 import { useCookies } from "react-cookie";
 import jwt_decode from "jwt-decode";
-import { Profile } from "./Profile";
-import { Register } from "./Register";
-import { UserProjects } from "./UserProjects";
-import { CircularProgress } from "@mui/material";
 import { isConnectedQueryDocument } from "./graphql-types/queries";
 import { User } from "./gql/graphql";
-import { UserModels } from "./UserModels";
+import { Loader } from "./Loader";
 
 export const UserContext = createContext({
   authed: false,
@@ -52,20 +46,16 @@ export default function App() {
     setLoading(false);
   });
 
+  const Map = React.lazy(() => import("./Map"));
+  const Login = React.lazy(() => import("./Login"));
+  const Profile = React.lazy(() => import("./Profile"));
+  const Register = React.lazy(() => import("./Register"));
+  const UserProjects = React.lazy(() => import("./UserProjects"));
+  const UserModels = React.lazy(() => import("./UserModels"));
+  const Project = React.lazy(() => import("./Project"));
+
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          height: "100vh",
-          width: "100vw",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <CircularProgress />
-      </div>
-    );
+    return <Loader />;
   } else {
     return (
       <ApolloProvider client={client}>
@@ -75,30 +65,66 @@ export default function App() {
           <AppContainer className="App">
             <BrowserRouter>
               <Navbar />
-              <Switch>
-                <Route exact path="/">
-                  <Home />
-                </Route>
-                <Route path="/map">
-                  <Map />
-                </Route>
-                <Route path="/login">
-                  <Login />
-                </Route>
-                <Route path="/profile">
-                  <Profile />
-                </Route>
-                <Route path="/register">
-                  <Register />
-                </Route>
-                <Route path="/myprojects">
-                  <UserProjects />
-                </Route>
-                <Route path="/mymodels">
-                  <UserModels />
-                </Route>
-                <Route render={() => <Redirect to="/"></Redirect>} />
-              </Switch>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                {/* <Route
+                  path="/map"
+                  element={
+                    <React.Suspense fallback={<>...</>}>
+                      <Map />
+                    </React.Suspense>
+                  }
+                /> */}
+                <Route
+                  path="/login"
+                  element={
+                    <React.Suspense fallback={<>...</>}>
+                      <Login />
+                    </React.Suspense>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <React.Suspense fallback={<>...</>}>
+                      <Profile />
+                    </React.Suspense>
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    <React.Suspense fallback={<>...</>}>
+                      <Register />
+                    </React.Suspense>
+                  }
+                />
+                <Route
+                  path="/myprojects"
+                  element={
+                    <React.Suspense fallback={<>...</>}>
+                      <UserProjects />
+                    </React.Suspense>
+                  }
+                />
+                <Route
+                  path="/myprojects/:projectid"
+                  element={
+                    <React.Suspense fallback={<>...</>}>
+                      <Project />
+                    </React.Suspense>
+                  }
+                />
+                <Route
+                  path="/mymodels"
+                  element={
+                    <React.Suspense fallback={<>...</>}>
+                      <UserModels />
+                    </React.Suspense>
+                  }
+                />
+                <Route path="*" element={<Navigate replace to="/" />} />
+              </Routes>
             </BrowserRouter>
           </AppContainer>
         </UserContext.Provider>

@@ -3,7 +3,7 @@ import React from "react";
 import { UserContext } from "./App";
 import { ProfileContainer } from "./styles/ProfileContainer.css";
 
-export const Profile = () => {
+const Profile = () => {
   return (
     <UserContext.Consumer>
       {(value) => {
@@ -33,3 +33,5 @@ export const Profile = () => {
     </UserContext.Consumer>
   );
 };
+
+export default Profile;

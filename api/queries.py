@@ -174,3 +174,29 @@ def resolve_allModels(obj, info):
         }
     
     return payload
+
+def resolve_project(obj, info, projectId):
+    try:
+        token = request.cookies.get('react-flask-app')
+        if token is None:
+            raise Exception('User is not logged in')
+        jwt.decode(token, "secret", algorithms=["HS256"])
+
+        # Check if project is fetched by owner
+
+        projectQuery = session.query(Project).filter_by(id=projectId).first()
+
+        project = projectQuery.to_dict()
+
+        payload = {
+            "success": True,
+            "project": project
+        }
+
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    
+    return payload

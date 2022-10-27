@@ -16,6 +16,7 @@ type Query {
   userLogin(email: String!, password: String!): UserLoginResult
   userLogout: UserLoginResult
   isConnected: UserLoginResult
+  project(projectId: ID!): ProjectResult
 }
 
 type Mutation {
@@ -34,12 +35,13 @@ type Mutation {
 Enums
 """
 enum GeometryType {
-  POINT
-  MULTIPOINT
-  LINESTRING
-  MULTILINESTRING
-  POLYGON
-  MULTIPOLYGON
+  Point
+  MultiPoint
+  LineString
+  MultiLineString
+  Polygon
+  MultiPolygon
+  GeometryCollection
 }
 
 """
@@ -150,4 +152,10 @@ type CreateModelFeatureResult {
   success: Boolean!
   errors: [String]
   model: Model
+}
+
+type ProjectResult {
+  success: Boolean!
+  errors: [String]
+  project: Project
 }

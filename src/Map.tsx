@@ -1,17 +1,30 @@
 import React, { useEffect } from "react";
 import mapboxgl from "mapbox-gl";
-import { withRouter } from "react-router-dom";
 import { MapContainer } from "./styles/MapContainer.css";
 import { Toolbar } from "./Toolbar";
+import { useQuery } from "@apollo/client";
+import { projectQueryDocument } from "./graphql-types/queries";
+import { FeatureCollectionToGeoJSON } from "./DataToGeoJSON";
+interface MapProps {
+  projectId: string;
+}
 
-const Map = () => {
+const Map = (props: MapProps) => {
+  const { data, loading } = useQuery(projectQueryDocument, {
+    variables: { projectId: props.projectId },
+  });
+
+  console.log(
+    "WAZAAAA: ",
+    data?.project?.project?.models[0]?.featureCollection[0]
+  );
+
   useEffect(() => {
     mapboxgl.accessToken =
       "pk.eyJ1IjoicGhpbGlwcGVtYWxvIiwiYSI6ImNsOG9vc2U2djE1dnYzem95ODgwb2kxYW0ifQ.aTIs55RuZk5buE_i9ddoOg";
     const map = new mapboxgl.Map({
       container: "map", // container ID
       style: "mapbox://styles/mapbox/streets-v11", // style URL
-      center: [-74.5, 40], // starting position [lng, lat]
       zoom: 9, // starting zoom
     });
 
@@ -25,10 +38,20 @@ const Map = () => {
         },
         "source-layer": "contour",
       });
+
+      if (!loading) {
+        console.log("beep boop");
+        map.addSource("project-data", {
+          type: "geojson",
+          data: FeatureCollectionToGeoJSON(
+            data.project.project.models[0].featureCollection
+          ),
+        });
+      }
     });
 
     map.on("click", (e) => console.log(e));
-  }, []);
+  }, [data, loading]);
 
   return (
     <MapContainer id="map">
@@ -37,4 +60,4 @@ const Map = () => {
   );
 };
 
-export default withRouter(Map);
+export default Map;

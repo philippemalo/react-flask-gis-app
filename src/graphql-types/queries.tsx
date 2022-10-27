@@ -64,3 +64,39 @@ export const allModelsQueryDocument = graphql(`
     }
   }
 `);
+
+export const projectQueryDocument = graphql(`
+  query projectQueryDocument($projectId: ID!) {
+    project(projectId: $projectId) {
+      success
+      errors
+      project {
+        id
+        name
+        models {
+          id
+          featureCollection {
+            id
+            geometry {
+              id
+              type
+              coordinates
+            }
+          }
+          centerPoint
+          rotation
+        }
+        featureCollection {
+          id
+          geometry {
+            id
+            type
+            coordinates
+          }
+          type
+          properties
+        }
+      }
+    }
+  }
+`);
